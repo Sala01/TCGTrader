@@ -4,6 +4,7 @@ import { View, StyleSheet, Alert } from 'react-native'
 import { Text, Button, ActivityIndicator, Snackbar } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
 import { isAfter } from 'date-fns'
+import { sendPushNotification } from '@/lib/sendPush'
 
 export default function PujarScreen() {
     const { id } = useLocalSearchParams()
@@ -106,11 +107,42 @@ export default function PujarScreen() {
             showSnackbar('No se pudo registrar la puja.')
         } else {
             showSnackbar(`Has pujado $${nuevoMonto}`, '#00B0FF')
+
+            // 🔔 Notificar al dueño de la subasta
+            const { data: subastaCompleta } = await supabase
+                .from('inventory')
+                .select('user_id, card_id, valor_actual')
+                .eq('id', id)
+                .single()
+
+            const { data: carta } = await supabase
+                .from('cards')
+                .select('name')
+                .eq('id', subastaCompleta?.card_id)
+                .single()
+
+            if (subastaCompleta?.user_id !== userId) {
+                const { data: tokenData } = await supabase
+                    .from('notification_tokens')
+                    .select('expo_token')
+                    .eq('user_id', subastaCompleta.user_id)
+                    .single()
+
+                if (tokenData?.expo_token) {
+                    await sendPushNotification(
+                        tokenData.expo_token,
+                        'Nueva puja recibida',
+                        `Se realizó una puja en tu subasta: ${carta?.name}. El valor actual es de: $${subastaCompleta.valor_actual}`
+                    )
+                }
+            }
+
             router.replace({
                 pathname: '/subasta/[id]',
                 params: { id },
             })
         }
+
     }
 
     if (loading || !inventario) {

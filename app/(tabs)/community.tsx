@@ -38,11 +38,11 @@ const communityItems = [
         path: '/community/foro',
     },
     {
-        id: 'news',
-        category: 'NOTICIAS',
-        title: 'Noticias y Actualizaciones',
-        description: 'Lo más nuevo del mundo de Yu-Gi-Oh! y TCG en general.',
-        image: 'https://img.yugioh-card.com/eu/wp-content/uploads/2024/11/CRBR_News_Banner.webp',
+        id: 'chatbot',
+        category: 'Yu-Gi-Oh! Juez',
+        title: 'Chatbot Juez de Yu-Gi-Oh!',
+        description: 'Responde cualquier duda sobre reglas o ruling',
+        image: 'https://www.yugioh-card.com/eu/wp-content/uploads/2023/04/News-Banner-Judge-1.webp',
         path: '/community/news',
     },
 ]

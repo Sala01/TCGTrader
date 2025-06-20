@@ -5,6 +5,7 @@ import VendedorInfo from '@/components/VendedorInfo'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { formatDistanceToNowStrict, isAfter } from 'date-fns'
+import { crearConversacion } from '@/lib/crearConversacion'
 
 export default function SubastaDetalleScreen() {
   const params = useLocalSearchParams()
@@ -103,6 +104,22 @@ export default function SubastaDetalleScreen() {
     return () => clearInterval(interval)
   }, [subasta?.fecha_limite])
 
+  const startConversation = async () => {
+    if (!userId || !subasta?.users?.id) return
+    if (userId === subasta.users.id) return // no iniciar conversación con uno mismo
+
+    await crearConversacion(userId, subasta.users.id)
+
+    router.push({
+      pathname: '/chat/[id]',
+      params: {
+        id: subasta.users.id,
+        nombre: subasta.users.username,
+      },
+    })
+  }
+
+
   const ganador = pujas?.[0]?.users?.username
   const ganadorId = pujas?.[0]?.user_id
 
@@ -150,6 +167,17 @@ export default function SubastaDetalleScreen() {
           municipio_id={parseInt(subasta.users.municipio_id ?? '0')}
         />
 
+        <Button
+          icon="account"
+          mode="outlined"
+          textColor="#00B0FF"
+          style={{ marginTop: 12 }}
+          onPress={() => router.push({ pathname: '/vendedor/[id]', params: { id: subasta.users.id } })}
+        >
+          Ver perfil del vendedor
+        </Button>
+
+
         {!finalizada && (
           <Button
             mode="contained"
@@ -163,22 +191,14 @@ export default function SubastaDetalleScreen() {
           </Button>
         )}
 
-        {finalizada && userId === subasta.users.id && (
+        {finalizada && userId === ganadorId && (
           <Button
             icon="chat"
             mode="contained"
             buttonColor="#00B0FF"
             textColor="#1C1C1C"
             style={styles.button}
-            onPress={() =>
-              router.push({
-                pathname: '/chat/[id]',
-                params: {
-                  id: subasta.users.id,
-                  nombre: subasta.users.username,
-                },
-              })
-            }
+            onPress={startConversation}
           >
             Contactar Vendedor
           </Button>

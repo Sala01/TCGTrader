@@ -65,7 +65,7 @@ export default function InventoryScreen() {
   }
 
   const confirmDelete = (id: number) => {
-    Alert.alert('¿Eliminar carta?', 'Esta acción no se puede deshacer.', [
+    showSnackbar('¿Eliminar carta?', 'Esta acción no se puede deshacer.', [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Eliminar',

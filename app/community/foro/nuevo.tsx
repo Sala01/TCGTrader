@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { View, ScrollView, Alert, Image, Platform } from 'react-native'
-import { TextInput, Button, Text, Menu, Snackbar } from 'react-native-paper'
+import { TextInput, Button, Text, Menu } from 'react-native-paper'
 import * as ImagePicker from 'expo-image-picker'
 import * as FileSystem from 'expo-file-system'
 import * as ImageManipulator from 'expo-image-manipulator'
@@ -8,6 +8,8 @@ import { decode as atob } from 'base-64'
 import { supabase } from '@/lib/supabase'
 import useUser from '@/hooks/useUser'
 import { router } from 'expo-router'
+import { useSnackbar } from '@/providers/SnackbarProvider'
+
 
 const categorias = ['General', 'Estrategia', 'Cartas', 'Torneos']
 
@@ -20,10 +22,8 @@ export default function NuevoPostScreen() {
   const [image, setImage] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [snackbar, setSnackbar] = useState({ visible: false, text: '', color: '#D32F2F' })
+  const { showSnackbar } = useSnackbar()
 
-  const showSnackbar = (text: string, color = '#D32F2F') => {
-    setSnackbar({ visible: true, text, color })
-  }
 
   const compressIfNeeded = async (uri: string): Promise<string> => {
     const info = await FileSystem.getInfoAsync(uri)
@@ -116,15 +116,6 @@ export default function NuevoPostScreen() {
       <Button mode="contained" onPress={handleSubmit} loading={loading} buttonColor="#00B0FF">
         Publicar
       </Button>
-
-      <Snackbar
-        visible={snackbar.visible}
-        onDismiss={() => setSnackbar({ ...snackbar, visible: false })}
-        duration={3000}
-        style={{ backgroundColor: snackbar.color, position: 'absolute', bottom: 20, left: 20, right: 20, borderRadius: 8 }}
-      >
-        <Text style={{ color: 'white', textAlign: 'center' }}>{snackbar.text}</Text>
-      </Snackbar>
     </ScrollView>
   )
 }

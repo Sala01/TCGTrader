@@ -3,6 +3,9 @@ import { View, Image, StyleSheet } from 'react-native'
 import { Text, Button } from 'react-native-paper'
 import VendedorInfo from '@/components/VendedorInfo'
 import { ScrollView } from 'react-native'
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
+import { crearConversacion } from '@/lib/crearConversacion'
 
 export default function VentaDetalleScreen() {
   const {
@@ -23,6 +26,14 @@ export default function VentaDetalleScreen() {
     intercambiable,
     solo_venta,
   } = useLocalSearchParams()
+  const [userId, setUserId] = useState<string | null>(null)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUserId(data?.user?.id ?? null)
+    })
+  }, [])
+
 
   return (
     <ScrollView style={styles.container}>
@@ -55,26 +66,57 @@ export default function VentaDetalleScreen() {
           estado_id={parseInt(estado_usuario_id as string)}
           municipio_id={parseInt(municipio_usuario_id as string)}
         />
+        <Button
+          icon="account"
+          mode="outlined"
+          textColor="#00B0FF"
+          style={{ marginTop: 12 }}
+          onPress={() => router.push({ pathname: '/vendedor/[id]', params: { id: vendedor_id.toString() } })}
+        >
+          Ver perfil del vendedor
+        </Button>
+
       </View>
 
       <Button
-          icon="chat"
-          mode="contained"
-          buttonColor="#00B0FF"
-          textColor="#1C1C1C"
-          onPress={() =>
+        icon="chat"
+        mode="contained"
+        buttonColor="#00B0FF"
+        textColor="#1C1C1C"
+        onPress={async () => {
+          if (!userId || !vendedor_id) return
+
+          await crearConversacion(userId, vendedor_id.toString())
+
+          // Obtener ID de conversación existente o recién creada
+          const key = [userId, vendedor_id.toString()].sort().join('-')
+          const { data: convo } = await supabase
+            .from('conversations')
+            .select('id')
+            .eq('conversation_key', key)
+            .single()
+
+          if (convo?.id) {
+            await supabase.from('messages').insert({
+              conversation_id: convo.id,
+              sender_id: userId,
+              content: 'Hola, me interesa tu carta.',
+            })
+
             router.push({
               pathname: '/chat/[id]',
               params: {
-                id: vendedor_id?.toString() ?? '',
+                id: vendedor_id.toString(),
                 nombre: vendedor_nombre?.toString() ?? '',
               },
             })
           }
-          style={styles.button}
-        >
-          Contactar Vendedor
-        </Button>
+        }}
+        style={styles.button}
+      >
+        Contactar Vendedor
+      </Button>
+
     </ScrollView>
   )
 }

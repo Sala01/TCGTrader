@@ -44,7 +44,7 @@ export default function AddBulkInventoryScreen() {
   }
 
   const handleAddToList = () => {
-    if (!selectedCard || !precio || !image) return Alert.alert('Completa todos los campos')
+    if (!selectedCard || !precio || !image) return showSnackbar('Completa todos los campos')
 
     setCartas((prev) => [
       ...prev,
@@ -111,11 +111,11 @@ export default function AddBulkInventoryScreen() {
         if (error) throw error
       }
   
-      Alert.alert('Cartas subidas exitosamente')
+      showSnackbar('Cartas subidas exitosamente')
       setCartas([])
     } catch (e) {
       console.error('Upload Error', e)
-      Alert.alert('Error al subir algunas cartas')
+      showSnackbar('Error al subir algunas cartas')
     } finally {
       setSubiendo(false)
     }

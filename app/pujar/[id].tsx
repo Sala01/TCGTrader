@@ -1,25 +1,20 @@
 import { useLocalSearchParams, router } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { View, StyleSheet, Alert } from 'react-native'
-import { Text, Button, ActivityIndicator, Snackbar } from 'react-native-paper'
+import { Text, Button, ActivityIndicator } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
 import { isAfter } from 'date-fns'
 import { sendPushNotification } from '@/lib/sendPush'
+import { useSnackbar } from '@/providers/SnackbarProvider'
 
 export default function PujarScreen() {
     const { id } = useLocalSearchParams()
     const [loading, setLoading] = useState(true)
     const [inventario, setInventario] = useState<any>(null)
     const [userId, setUserId] = useState<string | null>(null)
-    const [snackbar, setSnackbar] = useState({
-        visible: false,
-        text: '',
-        color: '#D32F2F', // rojo por default
-    })
+    const { showSnackbar } = useSnackbar()
 
-    const showSnackbar = (text: string, color: string = '#D32F2F') => {
-        setSnackbar({ visible: true, text, color })
-    }
+    
 
 
     useEffect(() => {
@@ -54,13 +49,11 @@ export default function PujarScreen() {
             return
         }
 
-        // 🔒 Validar que el usuario NO sea el dueño de la subasta
         if (inventario.users?.id === userId) {
             showSnackbar('No puedes pujar en tu propia subasta.')
             return
         }
 
-        // ⏳ Validar que la subasta sigue activa
         const fechaLimite = new Date(inventario.fecha_limite)
         if (isAfter(new Date(), fechaLimite)) {
             showSnackbar('La subasta ya ha terminado.')
@@ -68,7 +61,6 @@ export default function PujarScreen() {
             return
         }
 
-        // 🔁 Validar que no sea el mismo usuario que hizo la última puja
         const { data: pujasData } = await supabase
             .from('pujas')
             .select('user_id')
@@ -81,7 +73,6 @@ export default function PujarScreen() {
             return
         }
 
-        // 🧠 Revalidar el valor actual más reciente
         const { data: latest } = await supabase
             .from('inventory')
             .select('valor_actual')
@@ -94,7 +85,6 @@ export default function PujarScreen() {
             return
         }
 
-        // ✅ Calcular el nuevo monto
         const nuevoMonto = (inventario.valor_actual ?? 0) + (inventario.puja_minima ?? 0)
 
         const { error } = await supabase.from('pujas').insert({
@@ -115,11 +105,17 @@ export default function PujarScreen() {
                 .eq('id', id)
                 .single()
 
+            if (!subastaCompleta) {
+                console.warn('Subasta no encontrada')
+                return
+            }
+
             const { data: carta } = await supabase
                 .from('cards')
                 .select('name')
-                .eq('id', subastaCompleta?.card_id)
+                .eq('id', subastaCompleta.card_id)
                 .single()
+
 
             if (subastaCompleta?.user_id !== userId) {
                 const { data: tokenData } = await supabase
@@ -142,8 +138,8 @@ export default function PujarScreen() {
                 params: { id },
             })
         }
-
     }
+
 
     if (loading || !inventario) {
         return (
@@ -177,22 +173,6 @@ export default function PujarScreen() {
             >
                 Confirmar Puja
             </Button>
-            <Snackbar
-                visible={snackbar.visible}
-                onDismiss={() => setSnackbar({ ...snackbar, visible: false })}
-                duration={3000}
-                style={{
-                    backgroundColor: snackbar.color,
-                    position: 'absolute',
-                    bottom: 20,
-                    left: 20,
-                    right: 20,
-                    borderRadius: 8,
-                }}
-            >
-                <Text style={{ color: 'white', textAlign: 'center' }}>{snackbar.text}</Text>
-            </Snackbar>
-
         </View>
     )
 }

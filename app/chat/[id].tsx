@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { View, FlatList, TextInput, Image, KeyboardAvoidingView, Platform } from 'react-native'
 import { Text, IconButton, ActivityIndicator } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
-import { useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams, router } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { sendPushNotification } from '@/lib/sendPush'
 
@@ -82,31 +82,28 @@ export default function ChatDetailScreen() {
   }
 
   const sendMessage = async () => {
-  if (!input.trim() || !userId) return
+    if (!input.trim() || !userId) return
 
-  await supabase.from('messages').insert({
-    conversation_id: conversationId,
-    sender_id: userId,
-    content: input.trim(),
-  })
+    await supabase.from('messages').insert({
+      conversation_id: conversationId,
+      sender_id: userId,
+      content: input.trim(),
+    })
 
-  setInput('')
+    setInput('')
 
-  // Obtener el otro usuario
-  const otherId = otherUser.id
+    const otherId = otherUser.id
 
-  // Buscar su token
-  const { data } = await supabase
-    .from('notification_tokens')
-    .select('expo_token')
-    .eq('user_id', otherId)
-    .single()
+    const { data } = await supabase
+      .from('notification_tokens')
+      .select('expo_token')
+      .eq('user_id', otherId)
+      .single()
 
-  if (data?.expo_token) {
-    await sendPushNotification(data.expo_token, 'Nuevo mensaje', input.trim())
+    if (data?.expo_token) {
+      await sendPushNotification(data.expo_token, 'Nuevo mensaje', input.trim())
+    }
   }
-}
-
 
   const renderItem = ({ item }: { item: any }) => {
     const isMe = item.sender_id === userId
@@ -137,13 +134,25 @@ export default function ChatDetailScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0F1C' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: '#1C1C2E' }}>
-        {otherUser?.avatar_url ? (
-          <Image source={{ uri: otherUser.avatar_url }} style={{ width: 40, height: 40, borderRadius: 20, marginRight: 12 }} />
-        ) : (
-          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#333', marginRight: 12 }} />
-        )}
-        <Text style={{ color: 'white', fontSize: 16 }}>{otherUser?.username ?? 'Usuario'}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12, backgroundColor: '#1C1C2E' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          {otherUser?.avatar_url ? (
+            <Image source={{ uri: otherUser.avatar_url }} style={{ width: 40, height: 40, borderRadius: 20, marginRight: 12 }} />
+          ) : (
+            <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#333', marginRight: 12 }} />
+          )}
+          <Text style={{ color: 'white', fontSize: 16 }}>{otherUser?.username ?? 'Usuario'}</Text>
+        </View>
+        <IconButton
+          icon="account"
+          iconColor="#00B0FF"
+          onPress={() =>
+            router.push({
+              pathname: '/vendedor/[id]',
+              params: { id: otherUser.id },
+            })
+          }
+        />
       </View>
 
       <FlatList

@@ -68,8 +68,6 @@ export default function CardDetailScreen() {
         .eq('card_id', id)
         .eq('estatus', 'activa')
 
-      console.log("Data: ", data);
-
       if (!error) setListings(data || [])
       else console.error('Error fetching listings:', error)
     }

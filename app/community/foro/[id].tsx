@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { View, ScrollView, StyleSheet, Image, TouchableOpacity, ActivityIndicator } from 'react-native'
-import { Text, TextInput, Button, Appbar, Divider, Snackbar, IconButton } from 'react-native-paper'
+import { Text, TextInput, Button, Appbar, Divider, IconButton } from 'react-native-paper'
 import { useLocalSearchParams, router } from 'expo-router'
 import { supabase } from '@/lib/supabase'
 import useUser from '@/hooks/useUser'
@@ -274,15 +274,6 @@ export default function PostDetalleScreen() {
           </View>
         )}
       </ScrollView>
-
-      <Snackbar
-        visible={snackbar.visible}
-        onDismiss={() => setSnackbar({ ...snackbar, visible: false })}
-        duration={3000}
-        style={{ backgroundColor: '#D32F2F' }}
-      >
-        {snackbar.text}
-      </Snackbar>
     </View>
   )
 }

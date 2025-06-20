@@ -11,13 +11,13 @@ import {
   TextInput,
   Button,
   SegmentedButtons,
-  Snackbar,
   Text,
 } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { useSnackbar } from '@/providers/SnackbarProvider'
 
 export default function AuthScreen() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
@@ -32,6 +32,7 @@ export default function AuthScreen() {
     color: 'red',
     icon: 'alert-circle-outline',
   })
+  const { showSnackbar } = useSnackbar()
 
   const router = useRouter()
   const { redirected, returnTo } = useLocalSearchParams()
@@ -51,14 +52,6 @@ export default function AuthScreen() {
         BackHandler.removeEventListener('hardwareBackPress', onBackPress)
     }, [redirected])
   )
-
-  const showSnackbar = (
-    text: string,
-    color: string = 'red',
-    icon: string = 'alert-circle-outline'
-  ) => {
-    setSnackbar({ visible: true, text, color, icon })
-  }
 
   const validateFields = () => {
     if (!email || !password) {
@@ -92,18 +85,18 @@ export default function AuthScreen() {
         })
 
         if (userInsertError) {
-          showSnackbar('Error al registrar usuario', 'red', 'alert')
+          showSnackbar('Error al registrar usuario', 'red')
           console.error('Insert users error:', userInsertError)
         }
       } else {
-        showSnackbar('No se pudo obtener el ID de usuario', 'red', 'account-alert')
+        showSnackbar('No se pudo obtener el ID de usuario', 'red')
       }
 
       if (data.session) {
         await AsyncStorage.setItem('session', JSON.stringify(data.session))
         router.replace(returnTo === 'profile' ? '/profile' : '/index')
       } else {
-        showSnackbar('Confirma tu correo electrónico', '#00B0FF', 'email-alert')
+        showSnackbar('Confirma tu correo electrónico', '#00B0FF')
       }
     }
     setLoading(false)
@@ -215,25 +208,6 @@ export default function AuthScreen() {
           {mode === 'register' ? 'Registrarse' : 'Iniciar sesión'}
         </Button>
       </ScrollView>
-
-      <Snackbar
-        visible={snackbar.visible}
-        onDismiss={() => setSnackbar({ ...snackbar, visible: false })}
-        duration={3000}
-        style={{
-          backgroundColor: snackbar.color,
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
-      >
-        <MaterialCommunityIcons
-          name={snackbar.icon as any}
-          color="white"
-          size={20}
-          style={{ marginRight: 8 }}
-        />
-        <Text style={{ color: 'white' }}>{snackbar.text}</Text>
-      </Snackbar>
     </KeyboardAvoidingView>
   )
 }

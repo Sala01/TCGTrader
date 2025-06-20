@@ -40,7 +40,7 @@ export default function AddAuctionScreen() {
 
   const handleAddToList = () => {
     if (!selectedCard || !precioInicial || !image || !validarMultiplo10(precioInicial) || !validarMultiplo10(pujaMinima)) {
-      return Alert.alert('Verifica los campos', 'El precio inicial y la puja mínima deben ser múltiplos de 10.')
+      return showSnackbar('Verifica los campos', 'El precio inicial y la puja mínima deben ser múltiplos de 10.')
     }
     setCartas((prev) => [
       ...prev,
@@ -97,11 +97,11 @@ export default function AddAuctionScreen() {
         if (error) throw error
       }
 
-      Alert.alert('Subastas creadas exitosamente')
+      showSnackbar('Subastas creadas exitosamente')
       setCartas([])
     } catch (e) {
       console.error('Upload Error', e)
-      Alert.alert('Error al subir subastas')
+      showSnackbar('Error al subir subastas')
     } finally {
       setSubiendo(false)
     }

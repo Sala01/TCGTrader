@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { supabase } from '@/lib/supabase'
 import AuthGuard from '@/components/AuthGuard'
 import useUser from '@/hooks/useUser'
+import { useSnackbar } from '@/providers/SnackbarProvider'
 
 export default function EditProfileScreen() {
   const { user } = useUser()
@@ -21,6 +22,7 @@ export default function EditProfileScreen() {
   const [municipios, setMunicipios] = useState<any[]>([])
   const [estadoMenuVisible, setEstadoMenuVisible] = useState(false)
   const [municipioMenuVisible, setMunicipioMenuVisible] = useState(false)
+  const { showSnackbar } = useSnackbar()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -112,7 +114,7 @@ export default function EditProfileScreen() {
 
       if (uploadError) {
         console.error(uploadError)
-        Alert.alert('Error al subir imagen')
+        showSnackbar('Error al subir imagen')
         return
       }
 
@@ -137,10 +139,10 @@ export default function EditProfileScreen() {
       .eq('id', user.id)
 
     if (error) {
-      Alert.alert('Error al guardar')
+      showSnackbar('Error al guardar')
       console.error(error)
     } else {
-      Alert.alert('Perfil actualizado')
+      showSnackbar('Perfil actualizado')
     }
 
     setSaving(false)

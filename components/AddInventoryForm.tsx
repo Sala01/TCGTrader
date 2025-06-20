@@ -52,8 +52,8 @@ export default function AddInventoryForm() {
     }
 
     const handleSave = async () => {
-        if (!image) return Alert.alert('La foto es obligatoria')
-        if (!selectedCard || !precio) return Alert.alert('Completa los campos requeridos')
+        if (!image) return showSnackbar('La foto es obligatoria')
+        if (!selectedCard || !precio) return showSnackbar('Completa los campos requeridos')
 
         try {
             setUploading(true)
@@ -95,7 +95,7 @@ export default function AddInventoryForm() {
 
             if (error) throw error
 
-            Alert.alert('¡Carta agregada al inventario!')
+            showSnackbar('¡Carta agregada al inventario!')
             setSelectedCard(null)
             setSearch('')
             setCantidad('1')
@@ -103,7 +103,7 @@ export default function AddInventoryForm() {
             setImage(null)
         } catch (e) {
             console.error('Error al guardar:', e)
-            Alert.alert('Error al guardar')
+            showSnackbar('Error al guardar')
         } finally {
             setUploading(false)
         }

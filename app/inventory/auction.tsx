@@ -11,6 +11,7 @@ import SearchBarInline from '@/components/SearchBarInline'
 import * as FileSystem from 'expo-file-system'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { decode as atob } from 'base-64'
+import { useSnackbar } from '@/providers/SnackbarProvider'
 
 const estados = ['NM', 'LP', 'MP', 'HP', 'D']
 
@@ -27,6 +28,7 @@ export default function AddAuctionScreen() {
   const [cartas, setCartas] = useState<any[]>([])
   const [subiendo, setSubiendo] = useState(false)
   const [resetKey, setResetKey] = useState(0)
+  const { showSnackbar } = useSnackbar()
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({

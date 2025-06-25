@@ -16,7 +16,6 @@ import {
 import { supabase } from '@/lib/supabase'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useSnackbar } from '@/providers/SnackbarProvider'
 
 export default function AuthScreen() {
@@ -26,14 +25,8 @@ export default function AuthScreen() {
   const [username, setUsername] = useState('')
   const [nombre, setNombre] = useState('')
   const [loading, setLoading] = useState(false)
-  const [snackbar, setSnackbar] = useState({
-    visible: false,
-    text: '',
-    color: 'red',
-    icon: 'alert-circle-outline',
-  })
+  const [showCompleteProfile, setShowCompleteProfile] = useState(false)
   const { showSnackbar } = useSnackbar()
-
   const router = useRouter()
   const { redirected, returnTo } = useLocalSearchParams()
 
@@ -53,70 +46,79 @@ export default function AuthScreen() {
     }, [redirected])
   )
 
-  const validateFields = () => {
+  const handleRegister = async () => {
     if (!email || !password) {
       showSnackbar('Email y contraseña son obligatorios')
-      return false
+      return
     }
-    if (mode === 'register' && (!username || !nombre)) {
-      showSnackbar('Nombre y nombre de usuario son obligatorios')
-      return false
-    }
-    return true
-  }
 
-  const handleRegister = async () => {
-    if (!validateFields()) return
     setLoading(true)
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
     })
-
-    if (error) {
-      showSnackbar(error.message)
-    } else {
-      const userId = data.user?.id
-      if (userId) {
-        const { error: userInsertError } = await supabase.from('users').insert({
-          id: userId,
-          username,
-          nombre,
-        })
-
-        if (userInsertError) {
-          showSnackbar('Error al registrar usuario', 'red')
-          console.error('Insert users error:', userInsertError)
-        }
-      } else {
-        showSnackbar('No se pudo obtener el ID de usuario', 'red')
-      }
-
-      if (data.session) {
-        await AsyncStorage.setItem('session', JSON.stringify(data.session))
-        router.replace(returnTo === 'profile' ? '/profile' : '/index')
-      } else {
-        showSnackbar('Confirma tu correo electrónico', '#00B0FF')
-      }
-    }
     setLoading(false)
+
+    if (error) return showSnackbar(error.message)
+
+    showSnackbar('Confirma tu correo electrónico antes de iniciar sesión', '#00B0FF')
   }
 
   const handleLogin = async () => {
-    if (!validateFields()) return
+    if (!email || !password) {
+      showSnackbar('Email y contraseña son obligatorios')
+      return
+    }
+
     setLoading(true)
-    const { error, data } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
+    setLoading(false)
 
-    if (error) {
-      showSnackbar(error.message)
+    if (error) return showSnackbar(error.message)
+
+    const user = data.user
+
+    if (!user?.email_confirmed_at) {
+      return showSnackbar('Debes verificar tu correo antes de iniciar sesión')
+    }
+
+    const { data: userRow } = await supabase
+      .from('users')
+      .select('id')
+      .eq('id', user.id)
+      .single()
+
+    if (!userRow) {
+      setShowCompleteProfile(true)
     } else {
       await AsyncStorage.setItem('session', JSON.stringify(data.session))
       router.replace(returnTo === 'profile' ? '/profile' : '/index')
     }
-    setLoading(false)
+  }
+
+  const handleCompleteProfile = async () => {
+    if (!username || !nombre) {
+      return showSnackbar('Faltan datos del perfil')
+    }
+
+    const { data: authData } = await supabase.auth.getUser()
+    const userId = authData?.user?.id
+
+    if (!userId) return showSnackbar('No se encontró sesión')
+
+    const { error } = await supabase.from('users').insert({ id: userId, username, nombre })
+
+    if (error) {
+      console.error('Insert users error:', error)
+      return showSnackbar('Error al guardar perfil')
+    }
+
+    const { data: sessionData } = await supabase.auth.getSession()
+    await AsyncStorage.setItem('session', JSON.stringify(sessionData.session))
+    router.replace(returnTo === 'profile' ? '/profile' : '/index')
   }
 
   const handleSubmit = () => {
@@ -177,8 +179,22 @@ export default function AuthScreen() {
           style={{ marginBottom: 12 }}
         />
 
-        {mode === 'register' && (
+        <Button
+          mode="contained"
+          onPress={handleSubmit}
+          loading={loading}
+          buttonColor="#00B0FF"
+          style={{ marginBottom: 12 }}
+        >
+          {mode === 'register' ? 'Registrarse' : 'Iniciar sesión'}
+        </Button>
+
+        {showCompleteProfile && (
           <>
+            <Text style={{ color: 'white', marginBottom: 12, textAlign: 'center' }}>
+              Completa tu perfil para continuar
+            </Text>
+
             <TextInput
               label="Nombre de usuario"
               value={username}
@@ -195,18 +211,17 @@ export default function AuthScreen() {
               left={<TextInput.Icon icon="account-box" />}
               style={{ marginBottom: 16 }}
             />
+
+            <Button
+              mode="contained"
+              onPress={handleCompleteProfile}
+              loading={loading}
+              buttonColor="#00B0FF"
+            >
+              Guardar perfil
+            </Button>
           </>
         )}
-
-        <Button
-          mode="contained"
-          onPress={handleSubmit}
-          loading={loading}
-          buttonColor="#00B0FF"
-          style={{ marginBottom: 12 }}
-        >
-          {mode === 'register' ? 'Registrarse' : 'Iniciar sesión'}
-        </Button>
       </ScrollView>
     </KeyboardAvoidingView>
   )

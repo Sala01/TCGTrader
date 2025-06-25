@@ -25,7 +25,7 @@ export default function SubastaDetalleScreen() {
       rating: params.vendedor_rating,
       sales_total: params.vendedor_ventas,
       estado_id: params.estado_usuario_id,
-      municipio_id: params.municipio_usuario_id
+      pais_id: params.pais_usuario_id
     }
   } : null)
 
@@ -108,12 +108,12 @@ export default function SubastaDetalleScreen() {
     if (!userId || !subasta?.users?.id) return
     if (userId === subasta.users.id) return // no iniciar conversación con uno mismo
 
-    await crearConversacion(userId, subasta.users.id)
+    await crearConversacion(userId, subasta.users.id, subasta.id)
 
     router.push({
       pathname: '/chat/[id]',
       params: {
-        id: subasta.users.id,
+        id: subasta.id,
         nombre: subasta.users.username,
       },
     })
@@ -164,7 +164,7 @@ export default function SubastaDetalleScreen() {
           rating={parseFloat(subasta.users.rating ?? '0')}
           sales_total={parseInt(subasta.users.sales_total ?? '0')}
           estado_id={parseInt(subasta.users.estado_id ?? '0')}
-          municipio_id={parseInt(subasta.users.municipio_id ?? '0')}
+          pais_id={parseInt(subasta.users.pais_usuario_id ?? '0')}
         />
 
         <Button

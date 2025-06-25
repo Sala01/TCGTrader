@@ -6,6 +6,7 @@ import { ScrollView } from 'react-native'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { crearConversacion } from '@/lib/crearConversacion'
+import { useSnackbar } from '@/providers/SnackbarProvider'
 
 export default function VentaDetalleScreen() {
   const {
@@ -20,13 +21,14 @@ export default function VentaDetalleScreen() {
     vendedor_rating,
     vendedor_ventas,
     estado_usuario_id,
-    municipio_usuario_id,
+    pais_usuario_id,
     cantidad_disponible,
     cantidad_deseable,
     intercambiable,
     solo_venta,
   } = useLocalSearchParams()
   const [userId, setUserId] = useState<string | null>(null)
+  const { showSnackbar } = useSnackbar()
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -64,7 +66,7 @@ export default function VentaDetalleScreen() {
           rating={parseFloat(vendedor_rating as string)}
           sales_total={parseInt(vendedor_ventas as string)}
           estado_id={parseInt(estado_usuario_id as string)}
-          municipio_id={parseInt(municipio_usuario_id as string)}
+          pais_id={parseInt(pais_usuario_id as string)}
         />
         <Button
           icon="account"
@@ -84,12 +86,21 @@ export default function VentaDetalleScreen() {
         buttonColor="#00B0FF"
         textColor="#1C1C1C"
         onPress={async () => {
-          if (!userId || !vendedor_id) return
+          if (!userId || !vendedor_id) {
+            showSnackbar('Inicia sesión para realizar una compra')
+            return
+          }
 
-          await crearConversacion(userId, vendedor_id.toString())
+          await crearConversacion(userId, vendedor_id.toString(), id.toString())
 
           // Obtener ID de conversación existente o recién creada
-          const key = [userId, vendedor_id.toString()].sort().join('-')
+          const user1 = userId
+          const user2 = vendedor_id.toString()
+          const orderedUsers = [user1, user2].sort() // ordena alfabéticamente
+
+          const key = [orderedUsers[0], orderedUsers[1], id.toString()].join('-')
+
+          console.log(key)
           const { data: convo } = await supabase
             .from('conversations')
             .select('id')
@@ -106,7 +117,7 @@ export default function VentaDetalleScreen() {
             router.push({
               pathname: '/chat/[id]',
               params: {
-                id: vendedor_id.toString(),
+                id: key.toString(),
                 nombre: vendedor_nombre?.toString() ?? '',
               },
             })

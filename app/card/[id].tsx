@@ -62,7 +62,7 @@ export default function CardDetailScreen() {
             rating,
             sales_total,
             estado_id,
-            municipio_id
+            pais_id
           )
         `)
         .eq('card_id', id)
@@ -199,7 +199,7 @@ export default function CardDetailScreen() {
                   vendedor_rating: item.users.rating?.toString(),
                   vendedor_ventas: item.users.sales_total?.toString(),
                   estado_usuario_id: item.users.estado_id?.toString(),
-                  municipio_usuario_id: item.users.municipio_id?.toString(),
+                  pais_usuario_id: item.users.pais_id?.toString(),
                 },
               })
 
@@ -245,7 +245,7 @@ export default function CardDetailScreen() {
                   vendedor_rating: item.users.rating?.toString(),
                   vendedor_ventas: item.users.sales_total?.toString(),
                   estado_usuario_id: item.users.estado_id?.toString(),
-                  municipio_usuario_id: item.users.municipio_id?.toString(),
+                  pais_usuario_id: item.users.pais_id?.toString(),
                 }
               })
             }

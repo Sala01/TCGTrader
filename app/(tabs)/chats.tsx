@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, FlatList, TouchableOpacity } from 'react-native'
+import { View, FlatList, TouchableOpacity, Image } from 'react-native'
 import { Text, List, ActivityIndicator } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'expo-router'
@@ -11,6 +11,7 @@ export default function ConversationsScreen() {
   const [loading, setLoading] = useState(true)
   const [userId, setUserId] = useState<string | null>(null)
   const router = useRouter()
+  
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -36,7 +37,9 @@ export default function ConversationsScreen() {
           content,
           created_at,
           sender_id
-        )
+        ),
+        user1_data: user1 (username, avatar_url),
+        user2_data: user2 (username, avatar_url)
       `)
       .order('created_at', { ascending: false })
 
@@ -47,16 +50,26 @@ export default function ConversationsScreen() {
 
   const renderItem = ({ item }: { item: any }) => {
     const lastMessage = item.messages?.[item.messages.length - 1]?.content || 'Sin mensajes'
-    const otherUserId = item.user1 === userId ? item.user2 : item.user1
+    const isUser1 = item.user1 === userId
+    const otherUser = isUser1 ? item.user2_data : item.user1_data
 
     return (
       <TouchableOpacity onPress={() => router.push(`/chat/${item.id}`)}>
         <List.Item
-          title={`Usuario: ${otherUserId}`}
+          title={otherUser?.username ?? 'Usuario'}
           description={lastMessage}
           titleStyle={{ color: 'white' }}
           descriptionStyle={{ color: '#aaa' }}
-          left={() => <List.Icon icon="account" color="#00B0FF" />}
+          left={() =>
+            otherUser?.avatar_url ? (
+              <Image
+                source={{ uri: otherUser.avatar_url }}
+                style={{ width: 40, height: 40, borderRadius: 20, margin: 8 }}
+              />
+            ) : (
+              <List.Icon icon="account" color="#00B0FF" />
+            )
+          }
           style={{ backgroundColor: '#1C1C2E', marginBottom: 8, borderRadius: 12 }}
         />
       </TouchableOpacity>

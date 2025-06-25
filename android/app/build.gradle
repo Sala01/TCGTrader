@@ -88,6 +88,7 @@ android {
 
     namespace 'com.onlycarry.tcgtrader'
     defaultConfig {
+missingDimensionStrategy "store", "play"
         applicationId 'com.onlycarry.tcgtrader'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion

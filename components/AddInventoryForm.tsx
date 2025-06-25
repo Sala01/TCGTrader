@@ -7,6 +7,7 @@ import useUser from '@/hooks/useUser'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import * as FileSystem from 'expo-file-system'
 import { decode as atob } from 'base-64'
+import { useSnackbar } from '@/providers/SnackbarProvider'
 
 const estados = ['NM', 'LP', 'MP', 'HP', 'D']
 
@@ -22,6 +23,7 @@ export default function AddInventoryForm() {
     const [image, setImage] = useState<any>(null)
     const [uploading, setUploading] = useState(false)
     const [menuVisible, setMenuVisible] = useState(false)
+    const { showSnackbar } = useSnackbar()
 
     useEffect(() => {
         const fetchSuggestions = async () => {

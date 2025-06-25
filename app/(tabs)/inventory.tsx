@@ -1,6 +1,6 @@
 // app/inventory/index.tsx
 import { useEffect, useState } from 'react'
-import { FlatList, View, Image, Alert } from 'react-native'
+import { FlatList, View, Image } from 'react-native'
 import { Card, Text, IconButton, Button, Divider } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
 import { router } from 'expo-router'
@@ -8,6 +8,8 @@ import useUser from '@/hooks/useUser'
 import AddInventoryButton from '@/components/AddButton'
 import AuthGuard from '@/components/AuthGuard'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useSnackbar } from '@/providers/SnackbarProvider'
+import ConfirmDialog from '@/components/ConfirmDialog'
 
 interface InventoryItem {
   id: number
@@ -25,8 +27,11 @@ interface InventoryItem {
 export default function InventoryScreen() {
   const [items, setItems] = useState<InventoryItem[]>([])
   const [loading, setLoading] = useState(false)
-  const { user } = useUser()
   const [vista, setVista] = useState<'venta' | 'subasta' | 'todas'>('venta')
+  const [confirmVisible, setConfirmVisible] = useState(false)
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null)
+  const { user } = useUser()
+  const { showSnackbar } = useSnackbar()
 
   const fetchInventory = async () => {
     if (!user) return
@@ -65,21 +70,21 @@ export default function InventoryScreen() {
   }
 
   const confirmDelete = (id: number) => {
-    showSnackbar('¿Eliminar carta?', 'Esta acción no se puede deshacer.', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Eliminar',
-        style: 'destructive',
-        onPress: () => handleDelete(id)
-      }
-    ])
+    setItemToDelete(id)
+    setConfirmVisible(true)
   }
 
-  const handleDelete = async (id: number) => {
-    const { error } = await supabase.from('inventory').delete().eq('id', id)
+  const handleDelete = async () => {
+    if (!itemToDelete) return
+    const { error } = await supabase.from('inventory').delete().eq('id', itemToDelete)
     if (!error) {
-      setItems((prev) => prev.filter((i) => i.id !== id))
+      setItems((prev) => prev.filter((i) => i.id !== itemToDelete))
+      showSnackbar('Carta eliminada correctamente', '#00C853')
+    } else {
+      showSnackbar('Error al eliminar carta')
     }
+    setConfirmVisible(false)
+    setItemToDelete(null)
   }
 
   useEffect(() => {
@@ -175,6 +180,14 @@ export default function InventoryScreen() {
         />
 
         <AddInventoryButton />
+
+        <ConfirmDialog
+          visible={confirmVisible}
+          title="¿Eliminar carta?"
+          message="Esta acción no se puede deshacer."
+          onCancel={() => setConfirmVisible(false)}
+          onConfirm={handleDelete}
+        />
       </SafeAreaView>
     </AuthGuard>
   )

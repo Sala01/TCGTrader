@@ -6,6 +6,7 @@ export default {
     slug: 'tcg-trader',
     version: '1.0.0',
     owner: 'onlycarry',
+    icon: './assets/images/logo.png',
     android: {
       package: 'com.onlycarry.tcgtrader',
       runtimeVersion: '1.0.0',

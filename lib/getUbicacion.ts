@@ -1,16 +1,16 @@
 import { supabase } from '@/lib/supabase'
 
-export async function getUbicacion(estadoId: number, municipioId: number) {
+export async function getUbicacion(estadoId: number, paisId: number) {
   const { data: estadoData } = await supabase
-    .from('estados')
+    .from('estado')
     .select('nombre')
     .eq('id', estadoId)
     .single()
 
   const { data: municipioData } = await supabase
-    .from('municipios')
+    .from('pais')
     .select('nombre')
-    .eq('id', municipioId)
+    .eq('id', paisId)
     .single()
 
   return {

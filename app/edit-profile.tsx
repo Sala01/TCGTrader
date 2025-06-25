@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Image, TouchableOpacity, Alert } from 'react-native'
+import { View, Image, TouchableOpacity } from 'react-native'
 import { Text, TextInput, Button, Menu, ActivityIndicator } from 'react-native-paper'
 import * as ImagePicker from 'expo-image-picker'
 import * as FileSystem from 'expo-file-system'
@@ -16,10 +16,12 @@ export default function EditProfileScreen() {
   const [saving, setSaving] = useState(false)
   const [username, setUsername] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
+  const [paisId, setPaisId] = useState('')
   const [estadoId, setEstadoId] = useState('')
-  const [municipioId, setMunicipioId] = useState('')
+  const [paises, setPaises] = useState<any[]>([])
   const [estados, setEstados] = useState<any[]>([])
   const [municipios, setMunicipios] = useState<any[]>([])
+  const [paisMenuVisible, setPaisMenuVisible] = useState(false)
   const [estadoMenuVisible, setEstadoMenuVisible] = useState(false)
   const [municipioMenuVisible, setMunicipioMenuVisible] = useState(false)
   const { showSnackbar } = useSnackbar()
@@ -31,7 +33,7 @@ export default function EditProfileScreen() {
       try {
         const { data: userData, error: userError } = await supabase
           .from('users')
-          .select('username, avatar_url, estado_id, municipio_id')
+          .select('username, avatar_url, pais_id, estado_id, pais_id')
           .eq('id', user.id)
           .single()
 
@@ -40,20 +42,12 @@ export default function EditProfileScreen() {
         } else if (userData) {
           setUsername(userData.username)
           setAvatarUrl(userData.avatar_url)
+          setPaisId(userData.pais_id?.toString() || '')
           setEstadoId(userData.estado_id?.toString() || '')
-          setMunicipioId(userData.municipio_id?.toString() || '')
         }
 
-        const { data: estadosData, error: estadosError } = await supabase
-          .from('estados')
-          .select('id, nombre')
-          .order('nombre')
-
-        if (estadosError) {
-          console.error("Error fetching estados:", estadosError)
-        } else {
-          setEstados(estadosData || [])
-        }
+        const { data: paisesData } = await supabase.from('pais').select('id, nombre').order('id')
+        setPaises(paisesData || [])
 
         setLoading(false)
       } catch (e) {
@@ -66,19 +60,18 @@ export default function EditProfileScreen() {
   }, [user])
 
   useEffect(() => {
-    const fetchMunicipios = async () => {
-      if (!estadoId) return
-      const { data: municipiosData } = await supabase
-        .from('municipios')
+    const fetchEstados = async () => {
+      if (!paisId) return
+      const { data: estadosData } = await supabase
+        .from('estado')
         .select('id, nombre')
-        .eq('estado_id', estadoId)
+        .eq('pais_id', paisId)
         .order('nombre')
-
-      setMunicipios(municipiosData || [])
+      setEstados(estadosData || [])
     }
 
-    fetchMunicipios()
-  }, [estadoId])
+    fetchEstados()
+  }, [paisId])
 
   const handleAvatarChange = async () => {
     if (!user) return
@@ -92,8 +85,6 @@ export default function EditProfileScreen() {
       const fileUri = result.assets[0].uri
       const fileExt = fileUri.split('.').pop() || 'jpg'
       const fileName = `${user.id}/avatar-${Date.now()}.${fileExt}`
-
-      console.log("filename", fileName);
 
       const base64 = await FileSystem.readAsStringAsync(fileUri, {
         encoding: FileSystem.EncodingType.Base64,
@@ -133,8 +124,8 @@ export default function EditProfileScreen() {
       .update({
         username,
         avatar_url: avatarUrl,
+        pais_id: parseInt(paisId),
         estado_id: parseInt(estadoId),
-        municipio_id: parseInt(municipioId),
       })
       .eq('id', user.id)
 
@@ -175,49 +166,49 @@ export default function EditProfileScreen() {
         />
 
         <Menu
-          visible={estadoMenuVisible}
-          onDismiss={() => setEstadoMenuVisible(false)}
+          visible={paisMenuVisible}
+          onDismiss={() => setPaisMenuVisible(false)}
           anchor={
-            <Button mode="outlined" onPress={() => setEstadoMenuVisible(true)} style={{ marginBottom: 12 }}>
-              {estadoId
-                ? `Estado: ${estados.find((e) => e.id.toString() === estadoId)?.nombre}`
-                : 'Seleccionar estado'}
+            <Button mode="outlined" onPress={() => setPaisMenuVisible(true)} style={{ marginBottom: 12 }}>
+              {paisId
+                ? `País: ${paises.find((p) => p.id.toString() === paisId)?.nombre}`
+                : 'Seleccionar país'}
             </Button>
           }
         >
-          {estados.map((e) => (
+          {paises.map((p) => (
             <Menu.Item
-              key={e.id}
+              key={p.id}
               onPress={() => {
-                setEstadoId(e.id.toString())
-                setEstadoMenuVisible(false)
-                setMunicipioId('')
+                setPaisId(p.id.toString())
+                setPaisMenuVisible(false)
               }}
-              title={e.nombre}
+              title={p.nombre}
             />
           ))}
         </Menu>
 
-        {estadoId && (
+
+        {paisId && (
           <Menu
-            visible={municipioMenuVisible}
-            onDismiss={() => setMunicipioMenuVisible(false)}
+            visible={estadoMenuVisible}
+            onDismiss={() => setEstadoMenuVisible(false)}
             anchor={
-              <Button mode="outlined" onPress={() => setMunicipioMenuVisible(true)} style={{ marginBottom: 12 }}>
-                {municipioId
-                  ? `Municipio: ${municipios.find((m) => m.id.toString() === municipioId)?.nombre}`
-                  : 'Seleccionar municipio'}
+              <Button mode="outlined" onPress={() => setEstadoMenuVisible(true)} style={{ marginBottom: 12 }}>
+                {estadoId
+                  ? `Estado: ${estados.find((e) => e.id.toString() === estadoId)?.nombre}`
+                  : 'Seleccionar estado'}
               </Button>
             }
           >
-            {municipios.map((m) => (
+            {estados.map((e) => (
               <Menu.Item
-                key={m.id}
+                key={e.id}
                 onPress={() => {
-                  setMunicipioId(m.id.toString())
-                  setMunicipioMenuVisible(false)
+                  setEstadoId(e.id.toString())
+                  setEstadoMenuVisible(false)
                 }}
-                title={m.nombre}
+                title={e.nombre}
               />
             ))}
           </Menu>

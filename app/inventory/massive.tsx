@@ -7,6 +7,7 @@ import useUser from '@/hooks/useUser'
 import SearchBarInline from '@/components/SearchBarInline'
 import * as FileSystem from 'expo-file-system'
 import { decode as atob } from 'base-64'
+import { useSnackbar } from '@/providers/SnackbarProvider'
 
 
 const estados = ['NM', 'LP', 'MP', 'HP', 'D']
@@ -30,6 +31,7 @@ export default function AddBulkInventoryScreen() {
   const [cartas, setCartas] = useState<any[]>([])
   const [subiendo, setSubiendo] = useState(false)
   const [resetKey, setResetKey] = useState(0)
+  const { showSnackbar } = useSnackbar()
 
 
   const pickImage = async () => {

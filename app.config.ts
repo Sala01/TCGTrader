@@ -13,9 +13,7 @@ export default {
     },
     ios: {
       bundleIdentifier: 'com.onlycarry.tcgtrader',
-      runtimeVersion: {
-        policy: 'appVersion',
-      },
+      runtimeVersion: '1.0.0',
     },
     updates: {
       url: 'https://u.expo.dev/0c1f931a-be48-463a-9dae-149b06176d5c',

@@ -2,16 +2,17 @@ import { supabase } from './supabase'
 
 const MAX_PER_MONTH = 10
 
-export async function canAskQuestion(userId: string): Promise<{
+export async function canAskQuestion(userId: string, check: boolean = false): Promise<{
   allowed: boolean
   message: string
   used: number
   remaining: number
+  plan: string
   limit: number
 }> {
   const { data, error } = await supabase
     .from('user_question_quota')
-    .select('questions_left')
+    .select('questions_left, current_plan')
     .eq('user_id', userId)
     .single()
 
@@ -22,6 +23,7 @@ export async function canAskQuestion(userId: string): Promise<{
       used: MAX_PER_MONTH,
       remaining: 0,
       limit: MAX_PER_MONTH,
+      plan: 'Free',
     }
   }
 
@@ -38,6 +40,7 @@ export async function canAskQuestion(userId: string): Promise<{
         used: MAX_PER_MONTH,
         remaining: 0,
         limit: MAX_PER_MONTH,
+        plan: 'Free'
       }
     }
 
@@ -45,8 +48,9 @@ export async function canAskQuestion(userId: string): Promise<{
       allowed: true,
       message: 'Pregunta permitida. Contador inicializado.',
       used: 0,
-      remaining: MAX_PER_MONTH - 1,
+      remaining: MAX_PER_MONTH,
       limit: MAX_PER_MONTH,
+      plan: 'Free'
     }
   }
 
@@ -57,24 +61,32 @@ export async function canAskQuestion(userId: string): Promise<{
       used: MAX_PER_MONTH,
       remaining: 0,
       limit: MAX_PER_MONTH,
+      plan: data.current_plan
     }
   }
 
-  const remaining = data.questions_left - 1
-  const used = MAX_PER_MONTH - remaining
+  let remaining = data.questions_left
+  let used = MAX_PER_MONTH - remaining
 
-  const { error: updateError } = await supabase
-    .from('user_question_quota')
-    .update({ questions_left: remaining })
-    .eq('user_id', userId)
+  if(!check) {
 
-  if (updateError) {
-    return {
-      allowed: false,
-      message: 'No se pudo actualizar el contador.',
-      used,
-      remaining,
-      limit: MAX_PER_MONTH,
+    remaining = data.questions_left - 1
+    used = MAX_PER_MONTH - remaining
+
+    const { error: updateError } = await supabase
+      .from('user_question_quota')
+      .update({ questions_left: remaining })
+      .eq('user_id', userId)
+
+    if (updateError) {
+      return {
+        allowed: false,
+        message: 'No se pudo actualizar el contador.',
+        used,
+        remaining,
+        limit: MAX_PER_MONTH,
+        plan: data.current_plan
+      }
     }
   }
 
@@ -84,5 +96,6 @@ export async function canAskQuestion(userId: string): Promise<{
     used,
     remaining,
     limit: MAX_PER_MONTH,
+    plan: data.current_plan
   }
 }

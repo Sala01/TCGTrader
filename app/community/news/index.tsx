@@ -22,6 +22,7 @@ export default function ChatbotScreen() {
   const [questionLimit, setQuestionLimit] = useState(10)
   const [questionsUsed, setQuestionsUsed] = useState(0)
   const [questionsRemain, setQuestionsRemain] = useState(0)
+  const [currentPlan, setCurrentPlan] = useState('Free')
   const [modalVisible, setModalVisible] = useState(false)
 
   const { user } = useUser()
@@ -35,10 +36,11 @@ export default function ChatbotScreen() {
   }, [user])
 
   const checkQuota = async () => {
-    const check = await canAskQuestion(user.id)
+    const check = await canAskQuestion(user.id, true)
     setQuestionsUsed(check.used)
     setQuestionLimit(check.limit)
     setQuestionsRemain(check.remaining)
+    setCurrentPlan(check.plan)
   }
 
   const getQuotaColor = () => {
@@ -119,10 +121,11 @@ export default function ChatbotScreen() {
           <Text variant="titleLarge" style={styles.title}>Juez de Yu-Gi-Oh!</Text>
           <Text style={[styles.quota, { color: getQuotaColor() }]}> {questionsRemain} / {questionLimit} </Text>
         </View>
-        <Text style={{ color: '#aaa', fontSize: 12 }}>
-          Nivel: {user?.subscription_level ?? 'Básico'}
-        </Text>
-
+        <View style={styles.headerRowPlan}>
+          <Text style={{ color: '#aaa', fontSize: 12 }}>
+            Nivel: {currentPlan}
+          </Text>
+        </View>
 
         <View style={{ paddingHorizontal: 20 }}>
           <TextInput
@@ -201,6 +204,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 20,
+    marginBottom: 0,
+  },
+  headerRowPlan: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 0,
     marginBottom: 10,
   },
   title: { color: '#fff', fontWeight: 'bold', fontSize: 22 },

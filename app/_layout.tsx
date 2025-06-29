@@ -58,6 +58,7 @@ export default function RootLayout() {
             <Stack.Screen name="vendedor/[id]" options={{ title: 'Perfil Publico', headerTintColor: '#fff', headerStyle: { backgroundColor: '#0A0F1C' } }} />
             <Stack.Screen name="chat/[id]" options={{ title: 'Chat', headerTintColor: '#fff', headerStyle: { backgroundColor: '#0A0F1C' } }} />
             <Stack.Screen name="venta/concretar" options={{ title: 'Concretar Venta', headerTintColor: '#fff', headerStyle: { backgroundColor: '#0A0F1C' } }} />
+            <Stack.Screen name="inventory/edit/[id]" options={{ title: 'Editar Inventario', headerTintColor: '#fff', headerStyle: { backgroundColor: '#0A0F1C' } }} />
           </Stack>
           <StatusBar style="auto" />
         </ThemeProvider>

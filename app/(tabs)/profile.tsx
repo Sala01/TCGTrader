@@ -8,7 +8,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
 import AuthGuard from '@/components/AuthGuard'
 import useUser from '@/hooks/useUser'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
 
 export default function PerfilScreen() {
   const [section, setSection] = useState<'comentarios' | 'ventas' | 'compras'>('comentarios')
@@ -37,13 +36,13 @@ export default function PerfilScreen() {
   const fetchProfile = async () => {
     setLoading(true)
     const userId = user.id
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('users')
       .select(`username, avatar_url, sales_total, auction_status, forum_status, ban_reason, pais(nombre), estado(nombre)`)
       .eq('id', userId)
       .single()
 
-    if (!error) {
+    if (data) {
       setUserData({
         ...data,
         estado_nombre: data.estado?.nombre,
@@ -67,19 +66,13 @@ export default function PerfilScreen() {
     setLoading(false)
   }
 
-  const getReviewsId = async ()  => {
-    const { data: reviewed, error: datError } = await supabase
-    .from('reviews')
-    .select('sale_id')
-
-    //console.log(reviewed);
-
-    setReviewedSalesIds(reviewed?.map(r => r.sale_id) || [])
+  const getReviewsId = async () => {
+    const { data } = await supabase.from('reviews').select('sale_id')
+    setReviewedSalesIds(data?.map(r => r.sale_id) || [])
   }
 
   const fetchData = async () => {
     const userId = user.id
-
     await getReviewsId()
 
     if (section === 'comentarios') {
@@ -91,38 +84,33 @@ export default function PerfilScreen() {
       setComments(prev => [...prev, ...(data || [])])
     } else {
       const col = section === 'ventas' ? 'user_id' : 'buyer_id'
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('sales')
         .select('id, price, cantidad, shipping_code, inventory(cards(name), id), status, user_id')
         .eq(col, userId)
         .range((page - 1) * pageSize, page * pageSize - 1)
-
-      if (error) console.log(error);
       section === 'ventas' ? setVentas(prev => [...prev, ...(data || [])]) : setCompras(prev => [...prev, ...(data || [])])
     }
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchProfile()
-      setPage(1)
-      setComments([])
-      setVentas([])
-      setCompras([])
-      fetchData()
-    }, [section, user])
-  )
+  useFocusEffect(useCallback(() => {
+    fetchProfile()
+    setPage(1)
+    setComments([])
+    setVentas([])
+    setCompras([])
+    fetchData()
+  }, [section, user]))
 
   useEffect(() => {
-    if (page === 1) return
-    fetchData()
+    if (page > 1) fetchData()
   }, [page, section])
 
   const copyToClipboard = (text: string) => Clipboard.setString(text)
 
   const sendEmail = (vendedorId: string, ventaId: string, compradorId: string) => {
     const body = encodeURIComponent(`vendedor_id: ${vendedorId}\nventa_id: ${ventaId}\ncomprador_id: ${compradorId}\n\nEscribe tu mensaje abajo de esta línea y por favor no borres el texto anterior.\nAdjunta tu evidencia en este correo.`)
-    Linking.openURL(`mailto:tcgtraderslatam@gmail.com?subject=Reporte de vendedor&body=${body}`)
+    Linking.openURL(`mailto:ayuda@onlycarry.com?subject=Reporte de vendedor&body=${body}`)
   }
 
   const submitReview = async () => {
@@ -140,7 +128,7 @@ export default function PerfilScreen() {
       setRatingModalVisible(false)
       setReviewText('')
       setSelectedRating(0)
-    } else console.log(error)
+    }
     setSubmitting(false)
   }
 
@@ -152,23 +140,23 @@ export default function PerfilScreen() {
         keyExtractor={(item, i) => (item.id || i).toString()}
         renderItem={({ item }) => (
           section === 'comentarios' ? (
-            <Card style={{ margin: 8, backgroundColor: '#1C1C2E' }}>
+            <Card style={{ margin: 8, backgroundColor: '#1C1C2E', borderRadius: 12 }}>
               <Card.Content>
                 <Text style={{ color: 'white' }}>🗣️ {item.comentario}</Text>
               </Card.Content>
             </Card>
           ) : (
-            <Card style={{ margin: 8, backgroundColor: '#1C1C2E' }}>
+            <Card style={{ margin: 8, backgroundColor: '#1C1C2E', borderRadius: 12 }}>
               <Card.Content>
-                <Text style={{ color: 'white', fontWeight: 'bold' }}>🧾 {item.inventory?.cards.name}</Text>
-                <Text style={{ color: 'white' }}>💲 Precio: ${item.price / item.cantidad}</Text>
-                <Text style={{ color: 'white' }}>📦 Cantidad: {item.cantidad}</Text>
-                <Text style={{ color: 'white' }}>💲 Total: ${item.price}</Text>
-                <Text style={{ color: 'white' }}>📦 Estado: {item.status || 'N/A'}</Text>
+                <Text style={{ color: '#BFCED6', fontWeight: 'bold' }}>🧾 {item.inventory?.cards.name}</Text>
+                <Text style={{ color: '#ccc' }}>💲 Precio: ${item.price / item.cantidad}</Text>
+                <Text style={{ color: '#ccc' }}>📦 Cantidad: {item.cantidad}</Text>
+                <Text style={{ color: '#ccc' }}>💲 Total: ${item.price}</Text>
+                <Text style={{ color: '#ccc' }}>📦 Estado: {item.status || 'N/A'}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={{ color: 'white', flex: 1 }}>📦 Guía: {item.shipping_code || 'N/A'}</Text>
+                  <Text style={{ color: '#ccc', flex: 1 }}>📦 Guía: {item.shipping_code || 'N/A'}</Text>
                   {item.shipping_code && (
-                    <IconButton icon="content-copy" onPress={() => copyToClipboard(item.shipping_code)} />
+                    <IconButton icon="content-copy" onPress={() => copyToClipboard(item.shipping_code)} iconColor="#00B0FF" />
                   )}
                 </View>
                 {section === 'ventas' ? (
@@ -184,7 +172,9 @@ export default function PerfilScreen() {
                         setSelectedVentaForReview(item)
                         setRatingModalVisible(true)
                       }}>Marcar como recibido</Button>
-                      <Button mode="outlined" onPress={() => sendEmail(item.user_id, item.id, user.id)} style={{ marginTop: 4 }}>Reportar vendedor</Button>
+                      <Button mode="outlined" onPress={() => sendEmail(item.user_id, item.id, user.id)} style={{ marginTop: 4, borderColor: '#FF5555' }} textColor="#FF5555">
+                        Reportar vendedor
+                      </Button>
                     </>
                   )
                 )}
@@ -255,21 +245,30 @@ export default function PerfilScreen() {
 
           <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0F1C' }}>
             <View style={{ alignItems: 'center', padding: 16 }}>
-              <Image source={{ uri: userData.avatar_url }} style={{ width: 100, height: 100, borderRadius: 50 }} />
+              <Image source={{ uri: userData.avatar_url }} style={{ width: 100, height: 100, borderRadius: 50, borderWidth: 2, borderColor: '#00B0FF' }} />
               <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#BFCED6', marginTop: 8 }}>{userData.username}</Text>
               <Text style={{ color: '#ccc' }}>{userData.pais_nombre}, {userData.estado_nombre}</Text>
               <View style={{ flexDirection: 'row', marginTop: 8 }}>
-                <Text style={{ color: userData.auction_status === 'active' ? 'green' : 'red', marginRight: 16 }}>🏷️ Subastas</Text>
-                <Text style={{ color: userData.forum_status === 'active' ? 'green' : 'red' }}>💬 Foros</Text>
+                <Text style={{ color: userData.auction_status === 'active' ? '#00FF88' : '#FF5555', marginRight: 16 }}>🏷️ Subastas</Text>
+                <Text style={{ color: userData.forum_status === 'active' ? '#00FF88' : '#FF5555' }}>💬 Foros</Text>
               </View>
               <Text style={{ color: '#ccc', marginTop: 8 }}>⭐ {rating} ({reviewCount})</Text>
-              <Button mode="outlined" onPress={() => router.push('/edit-profile')} style={{ marginTop: 12, borderColor: '#00B0FF' }} textColor="#00B0FF">
+              <Button mode="outlined" onPress={() => router.push('/edit-profile')} style={{ marginTop: 12, borderColor: '#00B0FF', borderRadius: 30 }} textColor="#00B0FF">
                 Editar perfil
               </Button>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 12 }}>
               {['comentarios', 'ventas', 'compras'].map(key => (
-                <Button key={key} mode={section === key ? 'contained' : 'outlined'} buttonColor={section === key ? '#00B0FF' : undefined} onPress={() => { setSection(key as any); setPage(1) }}>{key.charAt(0).toUpperCase() + key.slice(1)}</Button>
+                <Button
+                  key={key}
+                  mode={section === key ? 'contained' : 'outlined'}
+                  buttonColor={section === key ? '#00B0FF' : undefined}
+                  textColor={section === key ? '#fff' : '#00B0FF'}
+                  style={{ borderRadius: 24 }}
+                  onPress={() => { setSection(key as any); setPage(1) }}
+                >
+                  {key.charAt(0).toUpperCase() + key.slice(1)}
+                </Button>
               ))}
             </View>
             {renderTabContent()}

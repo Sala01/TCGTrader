@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase'
 import AuthGuard from '@/components/AuthGuard'
 import useUser from '@/hooks/useUser'
 import { useSnackbar } from '@/providers/SnackbarProvider'
+import * as ImageManipulator from 'expo-image-manipulator'
 
 export default function EditProfileScreen() {
   const { user } = useUser()
@@ -78,41 +79,56 @@ export default function EditProfileScreen() {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
-      quality: 0.8,
+      quality: 1,
     })
 
     if (!result.canceled) {
-      const fileUri = result.assets[0].uri
-      const fileExt = fileUri.split('.').pop() || 'jpg'
-      const fileName = `${user.id}/avatar-${Date.now()}.${fileExt}`
+      try {
+        const original = result.assets[0]
 
-      const base64 = await FileSystem.readAsStringAsync(fileUri, {
-        encoding: FileSystem.EncodingType.Base64,
-      })
+        // 📦 Comprimir y redimensionar
+        const manipulated = await ImageManipulator.manipulateAsync(
+          original.uri,
+          [{ resize: { width: 800 } }],
+          { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+        )
 
-      const binary = atob(base64)
-      const byteArray = new Uint8Array(binary.length)
-      for (let i = 0; i < binary.length; i++) {
-        byteArray[i] = binary.charCodeAt(i)
-      }
+        const fileUri = manipulated.uri
+        const fileExt = fileUri.split('.').pop() || 'jpg'
+        const fileName = `${user.id}/avatar-${Date.now()}.${fileExt}`
 
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(fileName, byteArray, {
-          contentType: `image/${fileExt}`,
-          upsert: true,
+        const base64 = await FileSystem.readAsStringAsync(fileUri, {
+          encoding: FileSystem.EncodingType.Base64,
         })
 
-      if (uploadError) {
-        console.error(uploadError)
-        showSnackbar('Error al subir imagen')
-        return
-      }
+        const binary = atob(base64)
+        const byteArray = new Uint8Array(binary.length)
+        for (let i = 0; i < binary.length; i++) {
+          byteArray[i] = binary.charCodeAt(i)
+        }
 
-      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(fileName)
-      setAvatarUrl(urlData.publicUrl)
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(fileName, byteArray, {
+            contentType: `image/${fileExt}`,
+            upsert: true,
+          })
+
+        if (uploadError) {
+          console.error(uploadError)
+          showSnackbar('Error al subir imagen')
+          return
+        }
+
+        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(fileName)
+        setAvatarUrl(urlData.publicUrl)
+      } catch (e) {
+        console.error('Error al manipular imagen:', e)
+        showSnackbar('Ocurrió un error al procesar la imagen')
+      }
     }
   }
+
 
   const handleSave = async () => {
     if (!user) return

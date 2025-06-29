@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, Image, FlatList, TouchableOpacity } from 'react-native'
+import { View, FlatList, TouchableOpacity, StyleSheet } from 'react-native'
+import { Text, Button, Card } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
 import { router } from 'expo-router'
-import { Button, Card } from 'react-native-paper'
 
 export default function ActiveAuctionsSection() {
   const [subastas, setSubastas] = useState<any[]>([])
@@ -45,39 +45,44 @@ export default function ActiveAuctionsSection() {
   if (subastas.length === 0) return null
 
   return (
-    <View style={{ marginTop: 24 }}>
+    <View style={styles.container}>
       <FlatList
         horizontal
         data={subastas}
         keyExtractor={(item) => item.id.toString()}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingRight: 8, paddingLeft: 16 }}
+        contentContainerStyle={styles.scrollContainer}
         renderItem={({ item }) => (
           <TouchableOpacity
-            onPress={() => router.push({ pathname: '/subasta/[id]', params: {
-              id: item.id.toString(),
-              nombre: 'Carta en Subasta',
-              estado: item.estado,
-              valor_actual: item.valor_actual?.toString(),
-              puja_minima: item.puja_minima?.toString(),
-              fecha_limite: item.fecha_limite,
-              foto_url: item.foto_url,
-              vendedor_id: item.users.id,
-              vendedor_nombre: item.users.username,
-              vendedor_avatar: item.users.avatar_url,
-              vendedor_rating: '0',
-              vendedor_ventas: '0',
-              estado_usuario_id: '0',
-              municipio_usuario_id: '0',
-            }})}
+            onPress={() =>
+              router.push({
+                pathname: '/subasta/[id]',
+                params: {
+                  id: item.id.toString(),
+                  nombre: 'Carta en Subasta',
+                  estado: item.estado,
+                  valor_actual: item.valor_actual?.toString(),
+                  puja_minima: item.puja_minima?.toString(),
+                  fecha_limite: item.fecha_limite,
+                  foto_url: item.foto_url,
+                  vendedor_id: item.users.id,
+                  vendedor_nombre: item.users.username,
+                  vendedor_avatar: item.users.avatar_url,
+                  vendedor_rating: '0',
+                  vendedor_ventas: '0',
+                  estado_usuario_id: '0',
+                  municipio_usuario_id: '0',
+                },
+              })
+            }
           >
-            <Card style={{ width: 160, marginRight: 12, backgroundColor: '#1C1C2E' }}>
-              <Card.Cover source={{ uri: item.foto_url }} style={{ height: 180 }} />
-              <Card.Content>
-                <Text style={{ color: 'white', fontWeight: 'bold' }}>{item.users.username}</Text>
-                <Text style={{ color: '#00B0FF', fontSize: 13 }}>Actual: ${item.valor_actual}</Text>
-                <Text style={{ color: '#FFB300', fontSize: 12 }}>+${item.puja_minima} mínimo</Text>
-                <Text style={{ color: '#ccc', fontSize: 12 }}>{getTiempoRestante(item.fecha_limite)}</Text>
+            <Card style={styles.card} elevation={3}>
+              <Card.Cover source={{ uri: item.foto_url }} style={styles.image} />
+              <Card.Content style={styles.cardContent}>
+                <Text style={styles.username}>{item.users.username}</Text>
+                <Text style={styles.valorActual}>Actual: ${item.valor_actual}</Text>
+                <Text style={styles.minimo}>+${item.puja_minima} mínimo</Text>
+                <Text style={styles.tiempo}>{getTiempoRestante(item.fecha_limite)}</Text>
               </Card.Content>
             </Card>
           </TouchableOpacity>
@@ -85,8 +90,8 @@ export default function ActiveAuctionsSection() {
         ListFooterComponent={() => (
           <Button
             mode="outlined"
-            textColor="#00B0FF"
-            style={{ alignSelf: 'center', borderColor: '#00B0FF', marginRight: 16 }}
+            textColor="#00C8FF"
+            style={styles.footerButton}
             onPress={() => router.push('/subastas')}
           >
             Ver todas
@@ -96,3 +101,55 @@ export default function ActiveAuctionsSection() {
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    marginTop: 24,
+  },
+  scrollContainer: {
+    paddingLeft: 16,
+    paddingRight: 8,
+  },
+  card: {
+    width: 160,
+    marginRight: 12,
+    backgroundColor: '#1C1C2E',
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  image: {
+    height: 180,
+    resizeMode: 'cover',
+  },
+  cardContent: {
+    marginTop: 8,
+  },
+  username: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 13,
+    marginBottom: 2,
+  },
+  valorActual: {
+    color: '#00C8FF',
+    fontWeight: 'bold',
+    fontSize: 13,
+  },
+  minimo: {
+    color: '#FFB300',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  tiempo: {
+    color: '#bbb',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  footerButton: {
+    alignSelf: 'center',
+    borderColor: '#00C8FF',
+    borderRadius: 30,
+    marginRight: 16,
+    marginTop: 8,
+  },
+})

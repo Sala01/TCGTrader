@@ -12,6 +12,7 @@ import * as FileSystem from 'expo-file-system'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { decode as atob } from 'base-64'
 import { useSnackbar } from '@/providers/SnackbarProvider'
+import * as ImageManipulator from 'expo-image-manipulator'
 
 const estados = ['NM', 'LP', 'MP', 'HP', 'D']
 
@@ -31,12 +32,26 @@ export default function AddAuctionScreen() {
   const { showSnackbar } = useSnackbar()
 
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: false,
-      quality: 0.8,
+  const result = await ImagePicker.launchImageLibraryAsync({
+    allowsEditing: false,
+    quality: 1,
+  })
+
+  if (!result.canceled) {
+    const original = result.assets[0]
+
+    const manipulated = await ImageManipulator.manipulateAsync(
+      original.uri,
+      [{ resize: { width: 800 } }],
+      { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+    )
+
+    setImage({
+      ...original,
+      uri: manipulated.uri,
     })
-    if (!result.canceled) setImage(result.assets[0])
   }
+}
 
   const validarMultiplo10 = (val: string) => val && parseInt(val) % 10 === 0
 

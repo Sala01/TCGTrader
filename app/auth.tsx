@@ -17,6 +17,7 @@ import { supabase } from '@/lib/supabase'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router'
 import { useSnackbar } from '@/providers/SnackbarProvider'
+import * as Linking from 'expo-linking'
 
 export default function AuthScreen() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
@@ -222,6 +223,23 @@ export default function AuthScreen() {
             </Button>
           </>
         )}
+
+        <Text style={{ color: '#aaa', fontSize: 12, marginTop: 12 }}>
+          Al registrarse, usted acepta que leyó el{' '}
+          <Text
+            style={{ color: '#00B0FF', textDecorationLine: 'underline' }}
+            onPress={() => Linking.openURL('https://onlycarry.com/tcgtraders/privacidad.html')}
+          >
+            aviso de privacidad
+          </Text>{' '}
+          y acepta los{' '}
+          <Text
+            style={{ color: '#00B0FF', textDecorationLine: 'underline' }}
+            onPress={() => Linking.openURL('https://onlycarry.com/tcgtraders/terminos.html')}
+          >
+            términos y condiciones
+          </Text>.
+        </Text>
       </ScrollView>
     </KeyboardAvoidingView>
   )

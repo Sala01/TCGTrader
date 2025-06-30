@@ -106,8 +106,6 @@ export default function ChatDetailScreen() {
       .eq('id', convo.inventory_id)
       .single()
 
-    //console.log(prod);
-
     if (prod) setProducto(prod)
 
     setLoading(false)
@@ -219,7 +217,7 @@ export default function ChatDetailScreen() {
           nombre={producto.cards.name}
           precio={producto.precio.toString()}
           foto_url={producto.foto_url}
-          onConcretar={userId === producto.user_id && !openChat ? concretarVenta : undefined}
+          onConcretar={userId === producto.user_id ? concretarVenta : undefined}
         />
       )}
 
@@ -231,37 +229,33 @@ export default function ChatDetailScreen() {
         contentContainerStyle={{ paddingVertical: 16 }}
         onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
       />
-
-      {openChat && (
-
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={80}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={80}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          padding: 8,
+          backgroundColor: '#1C1C2E',
+        }}
+      >
+        <TextInput
+          value={input}
+          onChangeText={setInput}
+          placeholder="Escribe un mensaje..."
+          placeholderTextColor="#888"
           style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            padding: 8,
-            backgroundColor: '#1C1C2E',
+            flex: 1,
+            color: 'white',
+            backgroundColor: '#2A2A3F',
+            borderRadius: 20,
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+            marginRight: 8,
           }}
-        >
-          <TextInput
-            value={input}
-            onChangeText={setInput}
-            placeholder="Escribe un mensaje..."
-            placeholderTextColor="#888"
-            style={{
-              flex: 1,
-              color: 'white',
-              backgroundColor: '#2A2A3F',
-              borderRadius: 20,
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-              marginRight: 8,
-            }}
-          />
-          <IconButton icon="send" iconColor="#00B0FF" onPress={sendMessage} />
-        </KeyboardAvoidingView>
-      )}
+        />
+        <IconButton icon="send" iconColor="#00B0FF" onPress={sendMessage} />
+      </KeyboardAvoidingView>
     </SafeAreaView>
   )
 }

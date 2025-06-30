@@ -100,7 +100,7 @@ export default function VentaDetalleScreen() {
 
           const key = [orderedUsers[0], orderedUsers[1], id.toString()].join('-')
 
-          console.log(key)
+          //console.log(key)
           const { data: convo } = await supabase
             .from('conversations')
             .select('id')

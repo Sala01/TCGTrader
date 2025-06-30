@@ -108,12 +108,14 @@ export default function SubastaDetalleScreen() {
     if (!userId || !subasta?.users?.id) return
     if (userId === subasta.users.id) return // no iniciar conversación con uno mismo
 
+    const key = [userId, subasta.users.id, subasta.id].join('-')
+
     await crearConversacion(userId, subasta.users.id, subasta.id)
 
     router.push({
       pathname: '/chat/[id]',
       params: {
-        id: subasta.id,
+        id: key,
         nombre: subasta.users.username,
       },
     })

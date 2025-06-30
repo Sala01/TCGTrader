@@ -7,7 +7,7 @@ export const crearConversacion = async (usuario1: string, usuario2: string, inve
 
     const key = [orderedUsers[0], orderedUsers[1], inventoryId].join('-')
 
-    console.log(key);
+    //console.log(key);
     const { data: existente, error: errorBusqueda } = await supabase
       .from('conversations')
       .select('id')

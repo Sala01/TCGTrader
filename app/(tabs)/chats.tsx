@@ -11,7 +11,6 @@ export default function ConversationsScreen() {
   const [loading, setLoading] = useState(true)
   const [userId, setUserId] = useState<string | null>(null)
   const router = useRouter()
-  
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -21,6 +20,29 @@ export default function ConversationsScreen() {
 
   useEffect(() => {
     if (userId) fetchConversations()
+  }, [userId])
+
+  useEffect(() => {
+    if (!userId) return
+
+    const channel = supabase
+      .channel('conversations-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages'
+        },
+        (payload) => {
+          fetchConversations()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [userId])
 
   const fetchConversations = async () => {

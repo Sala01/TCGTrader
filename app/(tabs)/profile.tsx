@@ -244,6 +244,17 @@ export default function PerfilScreen() {
           </Portal>
 
           <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0F1C' }}>
+            <View style={{ alignItems: 'flex-end', padding: 8 }}>
+              <IconButton
+                icon="logout"
+                iconColor="#FF5555"
+                size={24}
+                onPress={async () => {
+                  await supabase.auth.signOut()
+                  router.replace('/login')
+                }}
+              />
+            </View>
             <View style={{ alignItems: 'center', padding: 16 }}>
               <Image source={{ uri: userData.avatar_url }} style={{ width: 100, height: 100, borderRadius: 50, borderWidth: 2, borderColor: '#00B0FF' }} />
               <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#BFCED6', marginTop: 8 }}>{userData.username}</Text>

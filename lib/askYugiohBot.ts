@@ -10,13 +10,13 @@ const HEADERS = {
 };
 
 async function getOrCreateThreadId(userId: string): Promise<string> {
-  const { data, error } = await supabase
+  /*const { data, error } = await supabase
     .from('user_threads')
     .select('thread_id')
     .eq('user_id', userId)
     .single();
 
-  if (data?.thread_id) return data.thread_id;
+  if (data?.thread_id) return data.thread_id;*/
 
   const threadRes = await fetch('https://api.openai.com/v1/threads', {
     method: 'POST',

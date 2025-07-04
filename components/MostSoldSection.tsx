@@ -1,24 +1,27 @@
-import { useEffect, useState } from 'react'
+import { useState, useCallback } from 'react'
 import { View, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native'
 import { Text, Card } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
 import { router } from 'expo-router'
+import { useFocusEffect } from '@react-navigation/native'
 
 export default function MostSoldSection() {
   const [cards, setCards] = useState<any[]>([])
 
-  useEffect(() => {
-    const fetchTopSelling = async () => {
-      const { data, error } = await supabase.rpc('top_sold_cards_last_30_days')
-      if (!error) {
-        setCards(data || [])
-      } else {
-        console.error('Error fetching top selling cards:', error)
+  useFocusEffect(
+    useCallback(() => {
+      const fetchTopSelling = async () => {
+        const { data, error } = await supabase.rpc('top_sold_cards_last_30_days')
+        if (!error) {
+          setCards(data || [])
+        } else {
+          console.error('Error fetching top selling cards:', error)
+        }
       }
-    }
 
-    fetchTopSelling()
-  }, [])
+      fetchTopSelling()
+    }, [])
+  )
 
   if (!cards.length) return null
 

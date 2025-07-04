@@ -14,9 +14,6 @@ export default function PujarScreen() {
     const [userId, setUserId] = useState<string | null>(null)
     const { showSnackbar } = useSnackbar()
 
-    
-
-
     useEffect(() => {
         const loadData = async () => {
             setLoading(true)
@@ -57,7 +54,7 @@ export default function PujarScreen() {
         const fechaLimite = new Date(inventario.fecha_limite)
         if (isAfter(new Date(), fechaLimite)) {
             showSnackbar('La subasta ya ha terminado.')
-            router.replace({ pathname: '/subasta/[id]', params: { id } })
+            router.back()
             return
         }
 
@@ -70,7 +67,7 @@ export default function PujarScreen() {
 
         if (pujasData?.[0]?.user_id === userId) {
             showSnackbar('No puedes pujar dos veces seguidas.')
-            return
+            //return
         }
 
         const { data: latest } = await supabase
@@ -81,7 +78,7 @@ export default function PujarScreen() {
 
         if (!latest || latest.valor_actual > inventario.valor_actual) {
             showSnackbar(`El valor actual ahora es $${latest?.valor_actual}.`)
-            router.replace({ pathname: '/subasta/[id]', params: { id } })
+            router.back()
             return
         }
 
@@ -133,10 +130,7 @@ export default function PujarScreen() {
                 }
             }
 
-            router.replace({
-                pathname: '/subasta/[id]',
-                params: { id },
-            })
+            router.back()
         }
     }
 

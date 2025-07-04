@@ -4,7 +4,7 @@ export default {
   expo: {
     name: 'TCG Trader',
     slug: 'tcg-trader',
-    version: '1.0.1',
+    version: '1.0.0-b2',
     owner: 'onlycarry',
     scheme: 'myapp',
     orientation: 'portrait',
@@ -19,15 +19,16 @@ export default {
     ios: {
       bundleIdentifier: 'com.onlycarry.tcgtrader',
       supportsTablet: true,
-      runtimeVersion: '1.0.1'
+      runtimeVersion: '1.0.0'
     },
     android: {
       package: 'com.onlycarry.tcgtrader',
-      runtimeVersion: '1.0.1',
+      runtimeVersion: '1.0.0',
       adaptiveIcon: {
         foregroundImage: './assets/images/logo.png',
         backgroundColor: '#0A0F1C'
-      }
+      },
+      targetSdkVersion: 35
     },
     web: {
       favicon: './assets/images/favicon.png'

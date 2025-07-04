@@ -1,7 +1,7 @@
 // Pantalla para subastar cartas basada en AddBulkInventoryScreen
 // Cambios clave: Validación de precio inicial, puja mínima, fecha límite y valor actual
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { View, Image, Alert, FlatList, KeyboardAvoidingView, Platform } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import { TextInput, Button, Text, Menu, Card, Subheading, IconButton } from 'react-native-paper'
@@ -9,10 +9,10 @@ import { supabase } from '@/lib/supabase'
 import useUser from '@/hooks/useUser'
 import SearchBarInline from '@/components/SearchBarInline'
 import * as FileSystem from 'expo-file-system'
-import DateTimePicker from '@react-native-community/datetimepicker'
 import { decode as atob } from 'base-64'
 import { useSnackbar } from '@/providers/SnackbarProvider'
 import * as ImageManipulator from 'expo-image-manipulator'
+import DateTimePickerModal from "react-native-modal-datetime-picker"
 
 const estados = ['NM', 'LP', 'MP', 'HP', 'D']
 
@@ -30,28 +30,29 @@ export default function AddAuctionScreen() {
   const [subiendo, setSubiendo] = useState(false)
   const [resetKey, setResetKey] = useState(0)
   const { showSnackbar } = useSnackbar()
+  const displayMode = Platform.OS === 'ios' ? 'spinner' : 'calendar';
 
   const pickImage = async () => {
-  const result = await ImagePicker.launchImageLibraryAsync({
-    allowsEditing: false,
-    quality: 1,
-  })
-
-  if (!result.canceled) {
-    const original = result.assets[0]
-
-    const manipulated = await ImageManipulator.manipulateAsync(
-      original.uri,
-      [{ resize: { width: 800 } }],
-      { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
-    )
-
-    setImage({
-      ...original,
-      uri: manipulated.uri,
+    const result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: false,
+      quality: 1,
     })
+
+    if (!result.canceled) {
+      const original = result.assets[0]
+
+      const manipulated = await ImageManipulator.manipulateAsync(
+        original.uri,
+        [{ resize: { width: 800 } }],
+        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+      )
+
+      setImage({
+        ...original,
+        uri: manipulated.uri,
+      })
+    }
   }
-}
 
   const validarMultiplo10 = (val: string) => val && parseInt(val) % 10 === 0
 
@@ -161,17 +162,18 @@ export default function AddAuctionScreen() {
             Fecha límite: {fechaLimite.toLocaleDateString()} {fechaLimite.toLocaleTimeString()}
           </Button>
           {showDatePicker && (
-            <DateTimePicker
-              value={fechaLimite}
+            <DateTimePickerModal
+              isVisible={showDatePicker}
               mode="datetime"
-              display="default"
-              minimumDate={new Date()}
-              onChange={(event, selectedDate) => {
+              onConfirm={(date) => {
+                setFechaLimite(date)
                 setShowDatePicker(false)
-                if (selectedDate) setFechaLimite(selectedDate)
               }}
+              onCancel={() => setShowDatePicker(false)}
+              minimumDate={new Date()}
             />
           )}
+
 
           <Menu
             visible={menuVisible}

@@ -23,7 +23,6 @@ export default function PerfilScreen() {
   const router = useRouter()
   const { user } = useUser()
   const [reviewedSalesIds, setReviewedSalesIds] = useState<string[]>([])
-
   const [modalVisible, setModalVisible] = useState(false)
   const [selectedVentaId, setSelectedVentaId] = useState<string | null>(null)
   const [guiaInput, setGuiaInput] = useState('')
@@ -78,7 +77,7 @@ export default function PerfilScreen() {
     if (section === 'comentarios') {
       const { data } = await supabase
         .from('reviews')
-        .select('comentario')
+        .select('*')
         .eq('reviewed_id', userId)
         .range((page - 1) * pageSize, page * pageSize - 1)
       setComments(prev => [...prev, ...(data || [])])
@@ -142,44 +141,28 @@ export default function PerfilScreen() {
           section === 'comentarios' ? (
             <Card style={{ margin: 8, backgroundColor: '#1C1C2E', borderRadius: 12 }}>
               <Card.Content>
-                <Text style={{ color: 'white' }}>🗣️ {item.comentario}</Text>
+                <Text style={{ color: 'white' }}>🗣️ {item.comentario} - ⭐ {item.rating}</Text>
               </Card.Content>
             </Card>
           ) : (
             <Card style={{ margin: 8, backgroundColor: '#1C1C2E', borderRadius: 12 }}>
               <Card.Content>
-                <Text style={{ color: '#BFCED6', fontWeight: 'bold' }}>🧾 {item.inventory?.cards.name}</Text>
-                <Text style={{ color: '#ccc' }}>💲 Precio: ${item.price / item.cantidad}</Text>
-                <Text style={{ color: '#ccc' }}>📦 Cantidad: {item.cantidad}</Text>
-                <Text style={{ color: '#ccc' }}>💲 Total: ${item.price}</Text>
-                <Text style={{ color: '#ccc' }}>📦 Estado: {item.status || 'N/A'}</Text>
+                <Text style={{ color: '#BFCED6', fontWeight: 'bold' }}>🃏 {item.inventory?.cards.name}</Text>
+                <Text style={{ color: '#ccc' }}>
+                  💲 Precio unitario: ${item.price / item.cantidad} 📦 Cantidad: {item.cantidad} 💰 Total: ${item.price}
+                </Text>
+                <Text style={{ color: '#ccc' }}>
+                  🚚 Estado del envío: {item.status || 'N/A'}
+                </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={{ color: '#ccc', flex: 1 }}>📦 Guía: {item.shipping_code || 'N/A'}</Text>
+                  <Text style={{ color: '#ccc', flex: 1 }}>📄 Guía: {item.shipping_code || 'N/A'}</Text>
                   {item.shipping_code && (
                     <IconButton icon="content-copy" onPress={() => copyToClipboard(item.shipping_code)} iconColor="#00B0FF" />
                   )}
                 </View>
-                {section === 'ventas' ? (
-                  <Button mode="contained" style={{ marginTop: 8 }} onPress={() => {
-                    setSelectedVentaId(item.id)
-                    setGuiaInput(item.shipping_code || '')
-                    setModalVisible(true)
-                  }}>Agregar Guía de Envío</Button>
-                ) : (
-                  !reviewedSalesIds.includes(item.id) && (
-                    <>
-                      <Button mode="contained" style={{ marginTop: 8 }} onPress={() => {
-                        setSelectedVentaForReview(item)
-                        setRatingModalVisible(true)
-                      }}>Marcar como recibido</Button>
-                      <Button mode="outlined" onPress={() => sendEmail(item.user_id, item.id, user.id)} style={{ marginTop: 4, borderColor: '#FF5555' }} textColor="#FF5555">
-                        Reportar vendedor
-                      </Button>
-                    </>
-                  )
-                )}
               </Card.Content>
             </Card>
+
           )
         )}
         onEndReached={() => setPage(p => p + 1)}
@@ -191,100 +174,67 @@ export default function PerfilScreen() {
   return (
     <AuthGuard>
       {userData && (
-        <>
-          <Portal>
-            <Dialog visible={modalVisible} onDismiss={() => setModalVisible(false)}>
-              <Dialog.Title>Agregar guía de envío</Dialog.Title>
-              <Dialog.Content>
-                <TextInput label="Código de guía" value={guiaInput} onChangeText={setGuiaInput} mode="outlined" />
-              </Dialog.Content>
-              <Dialog.Actions>
-                <Button onPress={() => setModalVisible(false)}>Cancelar</Button>
-                <Button loading={submitting} onPress={async () => {
-                  if (!selectedVentaId || !guiaInput.trim()) return
-                  setSubmitting(true)
-                  const { error } = await supabase.from('sales').update({ shipping_code: guiaInput, status: 'Enviado' }).eq('id', selectedVentaId)
-                  if (!error) {
-                    setVentas(prev => prev.map(v => v.id === selectedVentaId ? { ...v, shipping_code: guiaInput, status: 'Enviado' } : v))
-                    setModalVisible(false)
-                    setGuiaInput('')
-                  }
-                  setSubmitting(false)
-                }}>Guardar</Button>
-              </Dialog.Actions>
-            </Dialog>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0F1C' }}>
+          <View style={{ alignItems: 'flex-end', padding: 8 }}>
+            <IconButton
+              icon="logout"
+              iconColor="#FF5555"
+              size={24}
+              onPress={async () => {
+                await supabase.auth.signOut()
+                router.replace('/home')
+              }}
+            />
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: '#1C1C2E', margin: 12, borderRadius: 16 }}>
+            <Image source={{ uri: userData.avatar_url }} style={{ width: 80, height: 80, borderRadius: 40, borderWidth: 2, borderColor: '#00B0FF', marginRight: 12 }} />
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#BFCED6' }}>{userData.username}</Text>
+              <Text style={{ fontSize: 14, color: '#ccc' }}>{user.email}</Text>
+              <Text style={{ fontSize: 14, color: '#ccc' }}>{userData.pais_nombre}, {userData.estado_nombre}</Text>
+              <Text style={{ color: '#ccc', marginTop: 4 }}>⭐ {rating} ({reviewCount})</Text>
+            </View>
+            <IconButton icon="pencil" iconColor="#00B0FF" onPress={() => router.push('/edit-profile')} />
+          </View>
 
-            <Dialog visible={ratingModalVisible} onDismiss={() => setRatingModalVisible(false)}>
-              <Dialog.Title>Califica al vendedor</Dialog.Title>
-              <Dialog.Content>
-                <View style={{ flexDirection: 'row', marginBottom: 12 }}>
-                  {[1, 2, 3, 4, 5].map(star => (
-                    <IconButton
-                      key={star}
-                      icon={selectedRating >= star ? 'star' : 'star-outline'}
-                      iconColor="#FFD700"
-                      size={30}
-                      onPress={() => setSelectedRating(star)}
-                    />
-                  ))}
-                </View>
-                <TextInput
-                  label="Comentario"
-                  value={reviewText}
-                  onChangeText={setReviewText}
-                  multiline
-                  mode="outlined"
-                />
-              </Dialog.Content>
-              <Dialog.Actions>
-                <Button onPress={() => setRatingModalVisible(false)}>Cancelar</Button>
-                <Button loading={submitting} onPress={submitReview}>Enviar</Button>
-              </Dialog.Actions>
-            </Dialog>
-          </Portal>
-
-          <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0F1C' }}>
-            <View style={{ alignItems: 'flex-end', padding: 8 }}>
-              <IconButton
-                icon="logout"
-                iconColor="#FF5555"
-                size={24}
-                onPress={async () => {
-                  await supabase.auth.signOut()
-                  router.replace('/login')
+          <View style={{
+            flexDirection: 'row',
+            backgroundColor: '#1C1C2E',
+            borderRadius: 32,
+            marginHorizontal: 16,
+            padding: 4,
+            marginBottom: 16,
+            justifyContent: 'space-between',
+          }}>
+            {[
+              { key: 'comentarios', label: 'Coment.' },
+              { key: 'ventas', label: 'Ventas' },
+              { key: 'compras', label: 'Compras' },
+            ].map(({ key, label }) => (
+              <Button
+                key={key}
+                mode="contained"
+                onPress={() => { setSection(key); setPage(1) }}
+                buttonColor={section === key ? '#00B0FF' : 'transparent'}
+                textColor={section === key ? '#fff' : '#BFCED6'}
+                style={{
+                  flex: 1,
+                  marginHorizontal: 4,
+                  borderRadius: 24,
+                  elevation: section === key ? 2 : 0,
+                  paddingVertical: 4,
                 }}
-              />
-            </View>
-            <View style={{ alignItems: 'center', padding: 16 }}>
-              <Image source={{ uri: userData.avatar_url }} style={{ width: 100, height: 100, borderRadius: 50, borderWidth: 2, borderColor: '#00B0FF' }} />
-              <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#BFCED6', marginTop: 8 }}>{userData.username}</Text>
-              <Text style={{ color: '#ccc' }}>{userData.pais_nombre}, {userData.estado_nombre}</Text>
-              <View style={{ flexDirection: 'row', marginTop: 8 }}>
-                <Text style={{ color: userData.auction_status === 'active' ? '#00FF88' : '#FF5555', marginRight: 16 }}>🏷️ Subastas</Text>
-                <Text style={{ color: userData.forum_status === 'active' ? '#00FF88' : '#FF5555' }}>💬 Foros</Text>
-              </View>
-              <Text style={{ color: '#ccc', marginTop: 8 }}>⭐ {rating} ({reviewCount})</Text>
-              <Button mode="outlined" onPress={() => router.push('/edit-profile')} style={{ marginTop: 12, borderColor: '#00B0FF', borderRadius: 30 }} textColor="#00B0FF">
-                Editar perfil
+                contentStyle={{ height: 40 }}
+                labelStyle={{ fontSize: 13, textAlign: 'center' }}
+              >
+                {label}
               </Button>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 12 }}>
-              {['comentarios', 'ventas', 'compras'].map(key => (
-                <Button
-                  key={key}
-                  mode={section === key ? 'contained' : 'outlined'}
-                  buttonColor={section === key ? '#00B0FF' : undefined}
-                  textColor={section === key ? '#fff' : '#00B0FF'}
-                  style={{ borderRadius: 24 }}
-                  onPress={() => { setSection(key as any); setPage(1) }}
-                >
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                </Button>
-              ))}
-            </View>
-            {renderTabContent()}
-          </SafeAreaView>
-        </>
+            ))}
+
+          </View>
+
+          {renderTabContent()}
+        </SafeAreaView>
       )}
     </AuthGuard>
   )

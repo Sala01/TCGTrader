@@ -1,36 +1,40 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { View, FlatList, TouchableOpacity, StyleSheet } from 'react-native'
 import { Text, Button, Card } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
 import { router } from 'expo-router'
+import { useFocusEffect } from '@react-navigation/native'
 
 export default function ActiveAuctionsSection() {
   const [subastas, setSubastas] = useState<any[]>([])
 
-  useEffect(() => {
-    const fetchSubastas = async () => {
-      const { data, error } = await supabase
-        .from('inventory')
-        .select(`
-          id,
-          valor_actual,
-          puja_minima,
-          estado,
-          fecha_limite,
-          foto_url,
-          created_at,
-          users ( id, username, avatar_url )
-        `)
-        .eq('tipo', 'subasta')
-        .eq('estatus', 'activa')
-        .order('created_at', { ascending: false })
-        .limit(5)
+  useFocusEffect(
+    useCallback(() => {
+      const fetchSubastas = async () => {
+        const { data, error } = await supabase
+          .from('inventory')
+          .select(`
+            id,
+            valor_actual,
+            cards(name),
+            puja_minima,
+            estado,
+            fecha_limite,
+            foto_url,
+            created_at,
+            users ( id, username, avatar_url, rating, sales_total, estado_id, pais_id )
+          `)
+          .eq('tipo', 'subasta')
+          .eq('estatus', 'activa')
+          .order('created_at', { ascending: false })
+          .limit(5)
 
-      if (!error && data) setSubastas(data)
-    }
+        if (!error && data) setSubastas(data)
+      }
 
-    fetchSubastas()
-  }, [])
+      fetchSubastas()
+    }, [])
+  )
 
   const getTiempoRestante = (fechaLimite: string) => {
     const ahora = new Date()
@@ -59,23 +63,25 @@ export default function ActiveAuctionsSection() {
                 pathname: '/subasta/[id]',
                 params: {
                   id: item.id.toString(),
-                  nombre: 'Carta en Subasta',
                   estado: item.estado,
                   valor_actual: item.valor_actual?.toString(),
                   puja_minima: item.puja_minima?.toString(),
                   fecha_limite: item.fecha_limite,
                   foto_url: item.foto_url,
+                  // 👇 Ajuste clave para que coincida con el estado inicial que espera `cards.name`
+                  cards: { name: item.cards.name },
                   vendedor_id: item.users.id,
                   vendedor_nombre: item.users.username,
                   vendedor_avatar: item.users.avatar_url,
-                  vendedor_rating: '0',
-                  vendedor_ventas: '0',
-                  estado_usuario_id: '0',
-                  municipio_usuario_id: '0',
+                  vendedor_rating: item.users.rating,
+                  vendedor_ventas: item.users.sales_total,
+                  estado_id: item.users.estado_id,
+                  pais_id: item.users.pais_id,
                 },
               })
             }
           >
+
             <Card style={styles.card} elevation={3}>
               <Card.Cover source={{ uri: item.foto_url }} style={styles.image} />
               <Card.Content style={styles.cardContent}>

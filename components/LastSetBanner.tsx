@@ -1,42 +1,45 @@
-import { useEffect, useState } from 'react'
+import { useState, useCallback } from 'react'
 import { View, TouchableOpacity, StyleSheet, Dimensions, ImageBackground } from 'react-native'
 import { Text, Button } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
 import { router } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient'
+import { useFocusEffect } from '@react-navigation/native'
 
 const { width } = Dimensions.get('window')
 
 export default function LastSetBanner() {
   const [set, setSet] = useState<any>(null)
 
-  useEffect(() => {
-    const fetchLastSet = async () => {
-      const { data: sets } = await supabase
-        .from('sets')
-        .select('name, banner_url, group_id')
-        .order('published_on', { ascending: false })
+  useFocusEffect(
+    useCallback(() => {
+      const fetchLastSet = async () => {
+        const { data: sets } = await supabase
+          .from('sets')
+          .select('name, banner_url, group_id')
+          .order('published_on', { ascending: false })
 
-      if (!sets) return
+        if (!sets) return
 
-      for (const s of sets) {
-        if (!s.banner_url) continue
+        for (const s of sets) {
+          if (!s.banner_url) continue
 
-        const { data: cards } = await supabase
-          .from('cards')
-          .select('id')
-          .eq('group_id', s.group_id)
-          .limit(1)
+          const { data: cards } = await supabase
+            .from('cards')
+            .select('id')
+            .eq('group_id', s.group_id)
+            .limit(1)
 
-        if (cards && cards.length > 0) {
-          setSet(s)
-          return
+          if (cards && cards.length > 0) {
+            setSet(s)
+            return
+          }
         }
       }
-    }
 
-    fetchLastSet()
-  }, [])
+      fetchLastSet()
+    }, [])
+  )
 
   if (!set || !set.banner_url) return null
 
@@ -70,6 +73,7 @@ export default function LastSetBanner() {
     </TouchableOpacity>
   )
 }
+
 
 const styles = StyleSheet.create({
   container: {

@@ -20,10 +20,12 @@ export default function SearchBarInline({
 }) {
     const [query, setQuery] = useState('')
     const [results, setResults] = useState<Card[]>([])
+    const [showResults, setShowResults] = useState(false)
 
     useEffect(() => {
         if (query.length < 2) {
             setResults([])
+            setShowResults(false)
             return
         }
 
@@ -35,11 +37,13 @@ export default function SearchBarInline({
                 .limit(10)
 
             setResults(data || [])
+            setShowResults(true)
         }
 
         const delay = setTimeout(fetch, 300)
         return () => clearTimeout(delay)
     }, [query])
+
 
     useEffect(() => {
         setQuery('')
@@ -55,7 +59,7 @@ export default function SearchBarInline({
                 mode="outlined"
                 style={{ marginBottom: 8 }}
             />
-            {results.length > 0 && (
+            {showResults && results.length > 0 && (
                 <FlatList
                     data={results}
                     keyExtractor={(item) => item.id.toString()}
@@ -63,8 +67,9 @@ export default function SearchBarInline({
                     renderItem={({ item }) => (
                         <TouchableOpacity
                             onPress={() => {
-                                setQuery(item.name)
+                                setQuery('')
                                 onSelect(item)
+                                setShowResults(false)
                                 setResults([])
                             }}
                         >

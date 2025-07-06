@@ -73,22 +73,40 @@ export default function SearchBar() {
         onChangeText={setQuery}
         mode="outlined"
         returnKeyType="search"
-        textColor="#4FD2FF" // ✅ Color correcto del texto ingresado
+        textColor="#4FD2FF"
         outlineColor="#00AFFF"
         activeOutlineColor="#00C8FF"
+        onSubmitEditing={() => {
+          if (query.trim().length > 0) {
+            router.push({ pathname: '/search', params: { query } })
+            Keyboard.dismiss()
+          }
+        }}
         left={<TextInput.Icon icon="magnify" color="#00BFFF" />}
         right={
-          query.length > 0 ? (
+          <>
+            {query.length > 0 && (
+              <TextInput.Icon
+                icon="close"
+                onPress={() => {
+                  setQuery('')
+                  setResults([])
+                  Keyboard.dismiss()
+                }}
+                color="#FFD700"
+              />
+            )}
             <TextInput.Icon
-              icon="close"
+              icon="arrow-right"
               onPress={() => {
-                setQuery('')
-                setResults([])
-                Keyboard.dismiss()
+                if (query.trim().length > 0) {
+                  router.push({ pathname: '/search', params: { query } })
+                  Keyboard.dismiss()
+                }
               }}
-              color="#FFD700"
+              color="#00FFAA"
             />
-          ) : null
+          </>
         }
         style={{
           borderRadius: 70,
@@ -101,6 +119,7 @@ export default function SearchBar() {
           },
         }}
       />
+
 
       {query.length >= 2 && (
         <Surface

@@ -115,7 +115,7 @@ export default function AddAuctionScreen() {
         if (error) throw error
       }
 
-      showSnackbar('Subastas creadas exitosamente')
+      showSnackbar('Subastas creadas exitosamente', '#00B0FF')
       setCartas([])
     } catch (e) {
       console.error('Upload Error', e)

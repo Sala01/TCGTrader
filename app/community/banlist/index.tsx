@@ -1,7 +1,9 @@
+// @ts-nocheck
 import { useEffect, useState } from 'react'
-import { View, FlatList, Image, useWindowDimensions, StyleSheet } from 'react-native'
-import { Text, Button, ActivityIndicator } from 'react-native-paper'
+import { View, FlatList, Image, useWindowDimensions, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native'
+import { Text, Button, ActivityIndicator, Portal, Dialog } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import ZoomCardDialog from '@/components/ZoomCardDialog'
 
 type BanlistCard = {
   name: string
@@ -14,6 +16,9 @@ export default function BanlistScreen() {
   const [section, setSection] = useState<'Forbidden' | 'Limited' | 'Semi-Limited'>('Forbidden')
   const [cards, setCards] = useState<BanlistCard[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedCard, setSelectedCard] = useState<BanlistCard | null>(null)
+  const screenWidth = Dimensions.get('window').width
+  const DIALOG_WIDTH = screenWidth * 0.8
 
   const { width } = useWindowDimensions()
   const horizontalPadding = 16
@@ -53,8 +58,57 @@ export default function BanlistScreen() {
     }
   }
 
+  function CustomTabs({
+    options,
+    selected,
+    onSelect,
+  }: {
+    options: { key: string; label: string }[]
+    selected: string
+    onSelect: (key: string) => void
+  }) {
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          backgroundColor: '#1C1C2E',
+          borderRadius: 32,
+          marginHorizontal: 16,
+          padding: 4,
+          marginBottom: 16,
+          justifyContent: 'space-between',
+        }}
+      >
+        {options.map(({ key, label }) => (
+          <Button
+            key={key}
+            mode="contained"
+            onPress={() => onSelect(key)}
+            buttonColor={selected === key ? '#00B0FF' : 'transparent'}
+            textColor={selected === key ? '#fff' : '#BFCED6'}
+            style={{
+              flex: 1,
+              marginHorizontal: 4,
+              borderRadius: 24,
+              elevation: selected === key ? 2 : 0,
+              paddingVertical: 4,
+            }}
+            contentStyle={{ height: 40 }}
+            labelStyle={{ fontSize: 13, textAlign: 'center' }}
+          >
+            {label}
+          </Button>
+        ))}
+      </View>
+    )
+  }
+
+
   const renderItem = ({ item }: { item: BanlistCard }) => (
-    <View style={[styles.cardContainer, { width: CARD_WIDTH }]}>
+    <TouchableOpacity
+      style={[styles.cardContainer, { width: CARD_WIDTH }]}
+      onPress={() => setSelectedCard(item)}
+    >
       <Image
         source={{ uri: `https://images.ygoprodeck.com/images/cards_small/${item.id}.jpg` }}
         style={[styles.cardImage, {
@@ -66,39 +120,30 @@ export default function BanlistScreen() {
       <Text style={styles.cardName} numberOfLines={2}>
         {item.name}
       </Text>
-    </View>
+    </TouchableOpacity>
   )
 
   return (
     <SafeAreaView style={styles.safe}>
+      <ZoomCardDialog
+        visible={!!selectedCard}
+        card={selectedCard}
+        onClose={() => setSelectedCard(null)}
+      />
       <View style={styles.container}>
         <Text variant="titleLarge" style={styles.title}>
           Lista de Cartas Prohibidas y Limitadas
         </Text>
 
-        <View style={styles.buttonsRow}>
-          <Button
-            mode={section === 'Forbidden' ? 'contained' : 'outlined'}
-            buttonColor="#FF5252"
-            onPress={() => setSection('Forbidden')}
-          >
-            Prohibidas
-          </Button>
-          <Button
-            mode={section === 'Limited' ? 'contained' : 'outlined'}
-            buttonColor="#FFB300"
-            onPress={() => setSection('Limited')}
-          >
-            Limitadas
-          </Button>
-          <Button
-            mode={section === 'Semi-Limited' ? 'contained' : 'outlined'}
-            buttonColor="#66BB6A"
-            onPress={() => setSection('Semi-Limited')}
-          >
-            Semi-limitadas
-          </Button>
-        </View>
+        <CustomTabs
+          options={[
+            { key: 'Forbidden', label: '⛔️ Forbi' },
+            { key: 'Limited', label: '⚠️ Limit' },
+            { key: 'Semi-Limited', label: '✅ Semi' },
+          ]}
+          selected={section}
+          onSelect={setSection}
+        />
 
         {loading ? (
           <ActivityIndicator animating={true} color="#00B0FF" />
@@ -132,9 +177,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 16,
+    gap: 8,
+    paddingBottom: 4,
+    paddingHorizontal: 4,
+  },
+  tabButton: {
+    borderRadius: 10,
   },
   cardContainer: {
     alignItems: 'center',

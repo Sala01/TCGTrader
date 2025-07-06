@@ -125,7 +125,7 @@ export default function AddBulkInventoryScreen() {
         if (error) throw error
       }
 
-      showSnackbar('Cartas subidas exitosamente')
+      showSnackbar('Cartas subidas exitosamente', '#00B0FF')
       setCartas([])
     } catch (e) {
       console.error('Upload Error', e)

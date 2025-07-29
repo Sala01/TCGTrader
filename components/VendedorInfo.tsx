@@ -9,7 +9,7 @@ type Props = {
   rating?: number
   sales_total?: number
   estado_id: number
-  municipio_id: number
+  pais_id: number
 }
 
 export default function VendedorInfo({
@@ -18,13 +18,13 @@ export default function VendedorInfo({
   rating,
   sales_total,
   estado_id,
-  municipio_id,
+  pais_id,
 }: Props) {
   const [ubicacion, setUbicacion] = useState({ estado: '', municipio: '' })
 
   useEffect(() => {
-    getUbicacion(estado_id, municipio_id).then(setUbicacion)
-  }, [estado_id, municipio_id])
+    getUbicacion(estado_id,pais_id,).then(setUbicacion)
+  }, [estado_id,pais_id,])
 
   return (
     <View style={styles.container}>

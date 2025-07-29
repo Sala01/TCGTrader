@@ -1,10 +1,26 @@
-import { useEffect, useState, useRef } from 'react'
-import { View, FlatList, TextInput, Image, KeyboardAvoidingView, Platform } from 'react-native'
-import { Text, IconButton, ActivityIndicator } from 'react-native-paper'
+import { useEffect, useState, useRef, useCallback } from 'react'
+import { View, FlatList, TextInput, Image, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native'
+import { useFocusEffect } from '@react-navigation/native'
+import { Text, IconButton, ActivityIndicator, Button } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
 import { useLocalSearchParams, router } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { sendPushNotification } from '@/lib/sendPush'
+
+function ProductoRelacionado({ nombre, precio, foto_url, onConcretar }: { nombre: string; precio: string; foto_url: string; onConcretar?: () => void }) {
+  return (
+    <View style={styles.card}>
+      <Image source={{ uri: foto_url }} style={styles.image} />
+      <View style={{ flex: 1 }}>
+        <Text style={styles.title} numberOfLines={1}>{nombre}</Text>
+        <Text style={styles.price}>${precio}</Text>
+      </View>
+      {onConcretar && (
+        <Button mode="contained" onPress={onConcretar} style={styles.button} labelStyle={{ fontSize: 12 }}>Concretar</Button>
+      )}
+    </View>
+  )
+}
 
 export default function ChatDetailScreen() {
   const { id: conversationId } = useLocalSearchParams()
@@ -12,20 +28,26 @@ export default function ChatDetailScreen() {
   const [input, setInput] = useState('')
   const [userId, setUserId] = useState<string | null>(null)
   const [otherUser, setOtherUser] = useState<any>(null)
+  const [producto, setProducto] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [openChat, setOpenChat] = useState(true)
   const flatListRef = useRef<FlatList>(null)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setUserId(data?.user?.id ?? null)
+      //console.log(data?.user?.id);
     })
   }, [])
 
-  useEffect(() => {
-    if (userId && conversationId) {
-      fetchConversationData()
-    }
-  }, [userId, conversationId])
+
+  useFocusEffect(
+    useCallback(() => {
+      if (userId && conversationId) {
+        fetchConversationData()
+      }
+    }, [userId, conversationId])
+  )
 
   useEffect(() => {
     if (!conversationId) return
@@ -34,8 +56,14 @@ export default function ChatDetailScreen() {
       .channel(`chat-${conversationId}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conversationId}` },
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${conversationId}`,
+        },
         (payload) => {
+          console.log('📩 Nuevo mensaje recibido vía Realtime:', payload)
           setMessages((prev) => [...prev, payload.new])
         }
       )
@@ -46,16 +74,19 @@ export default function ChatDetailScreen() {
     }
   }, [conversationId])
 
+
   const fetchConversationData = async () => {
     setLoading(true)
 
     const { data: convo, error } = await supabase
       .from('conversations')
-      .select('user1, user2')
+      .select('user1, user2, inventory_id, closed')
       .eq('id', conversationId)
       .single()
 
     if (error) return console.error(error)
+
+    setOpenChat(convo.closed)
 
     const otherId = convo.user1 === userId ? convo.user2 : convo.user1
 
@@ -68,6 +99,15 @@ export default function ChatDetailScreen() {
     setOtherUser({ id: otherId, ...userData })
 
     await fetchMessages()
+
+    const { data: prod, error: errorInv } = await supabase
+      .from('inventory')
+      .select('id, precio, foto_url, cards(name), user_id')
+      .eq('id', convo.inventory_id)
+      .single()
+
+    if (prod) setProducto(prod)
+
     setLoading(false)
   }
 
@@ -92,8 +132,13 @@ export default function ChatDetailScreen() {
 
     setInput('')
 
-    const otherId = otherUser.id
+    // Forzar scroll al final
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true })
+    }, 100) // pequeño delay para que se renderice el nuevo mensaje
 
+    // Enviar notificación push
+    const otherId = otherUser.id
     const { data } = await supabase
       .from('notification_tokens')
       .select('expo_token')
@@ -103,6 +148,21 @@ export default function ChatDetailScreen() {
     if (data?.expo_token) {
       await sendPushNotification(data.expo_token, 'Nuevo mensaje', input.trim())
     }
+
+    await fetchMessages();
+  }
+
+
+  const concretarVenta = () => {
+    //console.log(otherUser.id);
+    if (!producto || !producto.id || !userId) return
+    router.push({
+      pathname: '/venta/concretar',
+      params: {
+        inventario_id: producto.id.toString(),
+        comprador_id: otherUser.id,
+      }
+    })
   }
 
   const renderItem = ({ item }: { item: any }) => {
@@ -147,13 +207,19 @@ export default function ChatDetailScreen() {
           icon="account"
           iconColor="#00B0FF"
           onPress={() =>
-            router.push({
-              pathname: '/vendedor/[id]',
-              params: { id: otherUser.id },
-            })
+            router.push({ pathname: '/vendedor/[id]', params: { id: otherUser.id } })
           }
         />
       </View>
+
+      {producto && (
+        <ProductoRelacionado
+          nombre={producto.cards.name}
+          precio={producto.precio.toString()}
+          foto_url={producto.foto_url}
+          onConcretar={userId === producto.user_id ? concretarVenta : undefined}
+        />
+      )}
 
       <FlatList
         ref={flatListRef}
@@ -163,7 +229,6 @@ export default function ChatDetailScreen() {
         contentContainerStyle={{ paddingVertical: 16 }}
         onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
       />
-
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={80}
@@ -194,3 +259,32 @@ export default function ChatDetailScreen() {
     </SafeAreaView>
   )
 }
+
+const styles = StyleSheet.create({
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1C1C2E',
+    padding: 10,
+    margin: 10,
+    borderRadius: 12,
+  },
+  image: {
+    width: 50,
+    height: 70,
+    borderRadius: 6,
+    marginRight: 12,
+  },
+  title: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  price: {
+    color: '#00B0FF',
+    marginTop: 4,
+  },
+  button: {
+    marginLeft: 12,
+  },
+})

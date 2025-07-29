@@ -6,28 +6,33 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { formatDistanceToNowStrict, isAfter } from 'date-fns'
 import { crearConversacion } from '@/lib/crearConversacion'
+import { useFocusEffect } from '@react-navigation/native'
+import { useCallback } from 'react'
 
 export default function SubastaDetalleScreen() {
   const params = useLocalSearchParams()
 
   const [subasta, setSubasta] = useState<any>(params?.foto_url ? {
     id: params.id,
-    nombre: params.nombre,
     estado: params.estado,
     valor_actual: params.valor_actual,
     puja_minima: params.puja_minima,
     fecha_limite: params.fecha_limite,
     foto_url: params.foto_url,
+    cards: { name: params.cards.name }, // ahora sí estará disponible
     users: {
       id: params.vendedor_id,
       username: params.vendedor_nombre,
       avatar_url: params.vendedor_avatar,
       rating: params.vendedor_rating,
       sales_total: params.vendedor_ventas,
-      estado_id: params.estado_usuario_id,
-      municipio_id: params.municipio_usuario_id
+      estado_id: params.estado_id,
+      pais_id: params.pais_id
     }
   } : null)
+
+
+  console.log(subasta);
 
   const [pujas, setPujas] = useState<any[]>([])
   const [timeLeft, setTimeLeft] = useState('')
@@ -42,49 +47,55 @@ export default function SubastaDetalleScreen() {
   }, [])
 
   // Fetch fallback si no hay datos precargados
-  useEffect(() => {
-    if (!subasta && params.id) {
+  useFocusEffect(
+    useCallback(() => {
+
       const load = async () => {
         const { data, error } = await supabase
           .from('inventory')
           .select(`
             id,
             tipo,
-            nombre,
+            cards(name),
             estado,
             valor_actual,
             puja_minima,
             fecha_limite,
             foto_url,
             users (
-              id, username, avatar_url, rating, sales_total, estado_id, municipio_id
+              id, username, avatar_url, rating, sales_total, estado_id, pais_id
             )
           `)
           .eq('id', params.id)
           .single()
+
+        console.log("data", data);
 
         if (data) setSubasta(data)
         if (error) console.error('Error loading fallback subasta:', error)
       }
 
       load()
-    }
-  }, [params.id])
+
+    }, [params.id])
+  )
 
   // Historial de pujas
-  useEffect(() => {
-    const fetchPujas = async () => {
-      const { data } = await supabase
-        .from('pujas')
-        .select('monto, user_id, users(username)')
-        .eq('inventario_id', params.id)
-        .order('monto', { ascending: false })
+  useFocusEffect(
+    useCallback(() => {
+      const fetchPujas = async () => {
+        const { data } = await supabase
+          .from('pujas')
+          .select('monto, user_id, users(username)')
+          .eq('inventario_id', params.id)
+          .order('monto', { ascending: false })
 
-      setPujas(data ?? [])
-    }
+        setPujas(data ?? [])
+      }
 
-    if (params.id) fetchPujas()
-  }, [params.id])
+      if (params.id) fetchPujas()
+    }, [params.id])
+  )
 
   // Contador en vivo
   useEffect(() => {
@@ -108,12 +119,14 @@ export default function SubastaDetalleScreen() {
     if (!userId || !subasta?.users?.id) return
     if (userId === subasta.users.id) return // no iniciar conversación con uno mismo
 
-    await crearConversacion(userId, subasta.users.id)
+    const key = [userId, subasta.users.id, subasta.id].join('-')
+
+    await crearConversacion(userId, subasta.users.id, subasta.id)
 
     router.push({
       pathname: '/chat/[id]',
       params: {
-        id: subasta.users.id,
+        id: key,
         nombre: subasta.users.username,
       },
     })
@@ -137,7 +150,10 @@ export default function SubastaDetalleScreen() {
       <Image source={{ uri: subasta.foto_url }} style={styles.image} />
 
       <View style={styles.card}>
-        <Text variant="titleLarge" style={styles.title}>{subasta.nombre}</Text>
+        <Text variant="titleLarge" style={styles.title}>
+          {subasta.cards?.name}
+        </Text>
+
 
         <Text style={styles.label}>Valor actual:</Text>
         <Text style={styles.value}>${subasta.valor_actual}</Text>
@@ -164,7 +180,7 @@ export default function SubastaDetalleScreen() {
           rating={parseFloat(subasta.users.rating ?? '0')}
           sales_total={parseInt(subasta.users.sales_total ?? '0')}
           estado_id={parseInt(subasta.users.estado_id ?? '0')}
-          municipio_id={parseInt(subasta.users.municipio_id ?? '0')}
+          pais_id={parseInt(subasta.users.pais_id ?? '0')}
         />
 
         <Button

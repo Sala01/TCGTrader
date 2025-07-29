@@ -1,214 +1,241 @@
+// @ts-nocheck
 import { useEffect, useState, useCallback } from 'react'
-import { View, Image, StyleSheet } from 'react-native'
-import { Text, Card, ActivityIndicator, Button } from 'react-native-paper'
-import AuthGuard from '@/components/AuthGuard'
+import { View, Image, FlatList, Clipboard, Linking } from 'react-native'
+import { Text, Button, Card, Dialog, Portal, TextInput, IconButton } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'expo-router'
-import { useFocusEffect } from '@react-navigation/native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useFocusEffect } from '@react-navigation/native'
+import AuthGuard from '@/components/AuthGuard'
+import useUser from '@/hooks/useUser'
 
-export default function InventoryScreen() {
+export default function PerfilScreen() {
+  const [section, setSection] = useState<'comentarios' | 'ventas' | 'compras'>('comentarios')
   const [userData, setUserData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const router = useRouter()
-  const [averageRating, setAverageRating] = useState('N/A')
+  const [comments, setComments] = useState<any[]>([])
+  const [ventas, setVentas] = useState<any[]>([])
+  const [compras, setCompras] = useState<any[]>([])
+  const [rating, setRating] = useState('N/A')
   const [reviewCount, setReviewCount] = useState(0)
-  const [recentReviews, setRecentReviews] = useState<any[]>([])
-
+  const [page, setPage] = useState(1)
+  const pageSize = 10
+  const router = useRouter()
+  const { user } = useUser()
+  const [reviewedSalesIds, setReviewedSalesIds] = useState<string[]>([])
+  const [modalVisible, setModalVisible] = useState(false)
+  const [selectedVentaId, setSelectedVentaId] = useState<string | null>(null)
+  const [guiaInput, setGuiaInput] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [ratingModalVisible, setRatingModalVisible] = useState(false)
+  const [reviewText, setReviewText] = useState('')
+  const [selectedRating, setSelectedRating] = useState<number>(0)
+  const [selectedVentaForReview, setSelectedVentaForReview] = useState<any>(null)
 
   const fetchProfile = async () => {
     setLoading(true)
-    const { data, error } = await supabase
+    const userId = user.id
+    const { data } = await supabase
       .from('users')
-      .select(`
-        username,
-        avatar_url,
-        sales_total,
-        auction_status,
-        forum_status,
-        ban_reason,
-        estados(nombre),
-        municipios(nombre)
-      `)
-      .eq('id', (await supabase.auth.getUser()).data.user?.id)
+      .select(`username, avatar_url, sales_total, auction_status, forum_status, ban_reason, pais(nombre), estado(nombre)`)
+      .eq('id', userId)
       .single()
 
-    if (!error) {
+    if (data) {
       setUserData({
         ...data,
-        estado_nombre: data.estados?.nombre,
-        municipio_nombre: data.municipios?.nombre,
+        estado_nombre: data.estado?.nombre,
+        pais_nombre: data.pais?.nombre,
       })
     }
 
-    const userId = (await supabase.auth.getUser()).data.user?.id
-
     const { data: ratingsData } = await supabase
       .from('reviews')
-      .select('rating, comentario, fecha')
+      .select('rating')
       .eq('reviewed_id', userId)
 
-    if (ratingsData && ratingsData.length > 0) {
-      const total = ratingsData.length
-      const avg = (
-        ratingsData.reduce((sum, r) => sum + Number(r.rating), 0) / total
-      ).toFixed(1)
-
-      const sorted = [...ratingsData].sort(
-        (a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
-      )
-
-      setAverageRating(avg)
-      setReviewCount(total)
-      setRecentReviews(sorted.slice(0, 3))
+    if (Array.isArray(ratingsData) && ratingsData.length > 0) {
+      const avg = (ratingsData.reduce((sum, r) => sum + Number(r.rating), 0) / ratingsData.length).toFixed(1)
+      setRating(avg)
+      setReviewCount(ratingsData.length)
     } else {
-      setAverageRating('N/A')
+      setRating('N/A')
       setReviewCount(0)
-      setRecentReviews([])
     }
-
     setLoading(false)
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchProfile()
-    }, [])
-  )
-
-  if (loading) {
-    return (
-      <AuthGuard>
-        <View style={styles.container}>
-          <ActivityIndicator color="#00B0FF" />
-        </View>
-      </AuthGuard>
-    )
+  const getReviewsId = async () => {
+    const { data } = await supabase.from('reviews').select('sale_id')
+    setReviewedSalesIds(data?.map(r => r.sale_id) || [])
   }
 
-  if (!userData) {
+  const fetchData = async () => {
+    const userId = user.id
+    await getReviewsId()
+
+    if (section === 'comentarios') {
+      const { data } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('reviewed_id', userId)
+        .range((page - 1) * pageSize, page * pageSize - 1)
+      setComments(prev => [...prev, ...(data || [])])
+    } else {
+      const col = section === 'ventas' ? 'user_id' : 'buyer_id'
+      const { data } = await supabase
+        .from('sales')
+        .select('id, price, cantidad, shipping_code, inventory(cards(name), id), status, user_id')
+        .eq(col, userId)
+        .range((page - 1) * pageSize, page * pageSize - 1)
+      section === 'ventas' ? setVentas(prev => [...prev, ...(data || [])]) : setCompras(prev => [...prev, ...(data || [])])
+    }
+  }
+
+  useFocusEffect(useCallback(() => {
+    fetchProfile()
+    setPage(1)
+    setComments([])
+    setVentas([])
+    setCompras([])
+    fetchData()
+  }, [section, user]))
+
+  useEffect(() => {
+    if (page > 1) fetchData()
+  }, [page, section])
+
+  const copyToClipboard = (text: string) => Clipboard.setString(text)
+
+  const sendEmail = (vendedorId: string, ventaId: string, compradorId: string) => {
+    const body = encodeURIComponent(`vendedor_id: ${vendedorId}\nventa_id: ${ventaId}\ncomprador_id: ${compradorId}\n\nEscribe tu mensaje abajo de esta línea y por favor no borres el texto anterior.\nAdjunta tu evidencia en este correo.`)
+    Linking.openURL(`mailto:ayuda@onlycarry.com?subject=Reporte de vendedor&body=${body}`)
+  }
+
+  const submitReview = async () => {
+    if (!selectedRating || !reviewText.trim() || !selectedVentaForReview) return
+    setSubmitting(true)
+    const { error } = await supabase.from('reviews').insert({
+      rating: selectedRating,
+      comentario: reviewText,
+      reviewed_id: selectedVentaForReview.user_id,
+      reviewer_id: user.id,
+      sale_id: selectedVentaForReview.id
+    });
+    if (!error) {
+      getReviewsId()
+      setRatingModalVisible(false)
+      setReviewText('')
+      setSelectedRating(0)
+    }
+    setSubmitting(false)
+  }
+
+  const renderTabContent = () => {
+    const data = section === 'ventas' ? ventas : compras
     return (
-      <AuthGuard>
-        <View style={styles.container}>
-          <Text style={{ color: 'white' }}>No se pudo cargar el perfil.</Text>
-        </View>
-      </AuthGuard>
+      <FlatList
+        data={section === 'comentarios' ? comments : data}
+        keyExtractor={(item, i) => (item.id || i).toString()}
+        renderItem={({ item }) => (
+          section === 'comentarios' ? (
+            <Card style={{ margin: 8, backgroundColor: '#1C1C2E', borderRadius: 12 }}>
+              <Card.Content>
+                <Text style={{ color: 'white' }}>🗣️ {item.comentario} - ⭐ {item.rating}</Text>
+              </Card.Content>
+            </Card>
+          ) : (
+            <Card style={{ margin: 8, backgroundColor: '#1C1C2E', borderRadius: 12 }}>
+              <Card.Content>
+                <Text style={{ color: '#BFCED6', fontWeight: 'bold' }}>🃏 {item.inventory?.cards.name}</Text>
+                <Text style={{ color: '#ccc' }}>
+                  💲 Precio unitario: ${item.price / item.cantidad} 📦 Cantidad: {item.cantidad} 💰 Total: ${item.price}
+                </Text>
+                <Text style={{ color: '#ccc' }}>
+                  🚚 Estado del envío: {item.status || 'N/A'}
+                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={{ color: '#ccc', flex: 1 }}>📄 Guía: {item.shipping_code || 'N/A'}</Text>
+                  {item.shipping_code && (
+                    <IconButton icon="content-copy" onPress={() => copyToClipboard(item.shipping_code)} iconColor="#00B0FF" />
+                  )}
+                </View>
+              </Card.Content>
+            </Card>
+
+          )
+        )}
+        onEndReached={() => setPage(p => p + 1)}
+        onEndReachedThreshold={0.5}
+      />
     )
   }
 
   return (
     <AuthGuard>
-      <SafeAreaView style={styles.container}>
-        <Image source={{ uri: userData.avatar_url }} style={styles.avatar} />
-        <Text style={styles.username}>{userData.username}</Text>
-        <Text style={styles.location}>
-          {userData.municipio_nombre}, {userData.estado_nombre}
-        </Text>
+      {userData && (
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0F1C' }}>
+          <View style={{ alignItems: 'flex-end', padding: 8 }}>
+            <IconButton
+              icon="logout"
+              iconColor="#FF5555"
+              size={24}
+              onPress={async () => {
+                await supabase.auth.signOut()
+                router.replace('/home')
+              }}
+            />
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: '#1C1C2E', margin: 12, borderRadius: 16 }}>
+            <Image source={{ uri: userData.avatar_url }} style={{ width: 80, height: 80, borderRadius: 40, borderWidth: 2, borderColor: '#00B0FF', marginRight: 12 }} />
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#BFCED6' }}>{userData.username}</Text>
+              <Text style={{ fontSize: 14, color: '#ccc' }}>{user.email}</Text>
+              <Text style={{ fontSize: 14, color: '#ccc' }}>{userData.pais_nombre}, {userData.estado_nombre}</Text>
+              <Text style={{ color: '#ccc', marginTop: 4 }}>⭐ {rating} ({reviewCount})</Text>
+            </View>
+            <IconButton icon="pencil" iconColor="#00B0FF" onPress={() => router.push('/edit-profile')} />
+          </View>
 
-        <Button
-          mode="outlined"
-          onPress={() => router.push('/edit-profile')}
-          style={styles.editButton}
-          textColor="#00B0FF"
-          icon="pencil"
-        >
-          Editar perfil
-        </Button>
+          <View style={{
+            flexDirection: 'row',
+            backgroundColor: '#1C1C2E',
+            borderRadius: 32,
+            marginHorizontal: 16,
+            padding: 4,
+            marginBottom: 16,
+            justifyContent: 'space-between',
+          }}>
+            {[
+              { key: 'comentarios', label: 'Coment.' },
+              { key: 'ventas', label: 'Ventas' },
+              { key: 'compras', label: 'Compras' },
+            ].map(({ key, label }) => (
+              <Button
+                key={key}
+                mode="contained"
+                onPress={() => { setSection(key); setPage(1) }}
+                buttonColor={section === key ? '#00B0FF' : 'transparent'}
+                textColor={section === key ? '#fff' : '#BFCED6'}
+                style={{
+                  flex: 1,
+                  marginHorizontal: 4,
+                  borderRadius: 24,
+                  elevation: section === key ? 2 : 0,
+                  paddingVertical: 4,
+                }}
+                contentStyle={{ height: 40 }}
+                labelStyle={{ fontSize: 13, textAlign: 'center' }}
+              >
+                {label}
+              </Button>
+            ))}
 
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium">Historial de Ventas</Text>
-            <Text style={styles.text}>🛒 Total de ventas: {userData.sales_total}</Text>
-          </Card.Content>
-        </Card>
+          </View>
 
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium">Subastas</Text>
-            {userData.auction_status === 'active' ? (
-              <Text style={{ color: 'green' }}>✅ Activo</Text>
-            ) : (
-              <>
-                <Text style={{ color: 'red' }}>🚫 Baneado</Text>
-                <Text style={styles.text}>Motivo: {userData.ban_reason}</Text>
-              </>
-            )}
-          </Card.Content>
-        </Card>
-
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium">Foros</Text>
-            {userData.forum_status === 'active' ? (
-              <Text style={{ color: 'green' }}>✅ Activo</Text>
-            ) : (
-              <>
-                <Text style={{ color: 'red' }}>🚫 Baneado</Text>
-                <Text style={styles.text}>Motivo: {userData.ban_reason}</Text>
-              </>
-            )}
-          </Card.Content>
-        </Card>
-
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium">Reputación</Text>
-            <Text style={styles.text}>⭐ {averageRating} ({reviewCount} valoraciones)</Text>
-          </Card.Content>
-        </Card>
-
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleMedium">Últimos comentarios</Text>
-            {recentReviews.length === 0 ? (
-              <Text style={styles.text}>Este usuario aún no tiene comentarios.</Text>
-            ) : (
-              recentReviews.map((r, i) => (
-                <Text key={i} style={styles.text}>🗣️ {r.comentario}</Text>
-              ))
-            )}
-          </Card.Content>
-        </Card>
-
-      </SafeAreaView>
+          {renderTabContent()}
+        </SafeAreaView>
+      )}
     </AuthGuard>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0A0F1C',
-    padding: 16,
-    alignItems: 'center',
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 12,
-  },
-  username: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#BFCED6',
-  },
-  location: {
-    fontSize: 14,
-    color: '#ccc',
-    marginBottom: 20,
-  },
-  card: {
-    width: '100%',
-    marginBottom: 12,
-    backgroundColor: '#BFCED6',
-  },
-  text: {
-    color: '#1C1C1C',
-    fontSize: 14,
-  },
-  editButton: {
-    marginBottom: 16,
-    borderColor: '#00B0FF',
-  },
-})

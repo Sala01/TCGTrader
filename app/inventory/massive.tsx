@@ -7,6 +7,8 @@ import useUser from '@/hooks/useUser'
 import SearchBarInline from '@/components/SearchBarInline'
 import * as FileSystem from 'expo-file-system'
 import { decode as atob } from 'base-64'
+import { useSnackbar } from '@/providers/SnackbarProvider'
+import * as ImageManipulator from 'expo-image-manipulator'
 
 
 const estados = ['NM', 'LP', 'MP', 'HP', 'D']
@@ -30,16 +32,28 @@ export default function AddBulkInventoryScreen() {
   const [cartas, setCartas] = useState<any[]>([])
   const [subiendo, setSubiendo] = useState(false)
   const [resetKey, setResetKey] = useState(0)
+  const { showSnackbar } = useSnackbar()
 
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: false,
-      quality: 0.8,
+      quality: 1,
     })
 
     if (!result.canceled) {
-      setImage(result.assets[0])
+      const original = result.assets[0]
+
+      const manipulated = await ImageManipulator.manipulateAsync(
+        original.uri,
+        [{ resize: { width: 800 } }],
+        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+      )
+
+      setImage({
+        ...original,
+        uri: manipulated.uri,
+      })
     }
   }
 
@@ -67,37 +81,37 @@ export default function AddBulkInventoryScreen() {
   const handleUploadAll = async () => {
     if (!cartas.length) return
     setSubiendo(true)
-  
+
     try {
       for (const carta of cartas) {
         const fileUri = carta.image.uri
         const fileExt = fileUri.split('.').pop() || 'jpg'
         const fileName = `${user.id}/${carta.number}_${Math.random()}.${fileExt}`
-  
+
         // 1. Leer imagen como base64
         const base64 = await FileSystem.readAsStringAsync(fileUri, {
           encoding: FileSystem.EncodingType.Base64,
         })
-  
+
         // 2. Convertir a Uint8Array
         const binary = atob(base64)
         const byteArray = new Uint8Array(binary.length)
         for (let i = 0; i < binary.length; i++) {
           byteArray[i] = binary.charCodeAt(i)
         }
-  
+
         // 3. Subir el Uint8Array directamente a Supabase
         const { error: uploadError } = await supabase.storage
           .from('inventory-photos')
           .upload(fileName, byteArray, {
             contentType: `image/${fileExt}`,
           })
-  
+
         if (uploadError) throw uploadError
-  
+
         const { data: urlData } = supabase.storage.from('inventory-photos').getPublicUrl(fileName)
         const foto_url = urlData.publicUrl
-  
+
         const { error } = await supabase.from('inventory').insert({
           user_id: user.id,
           card_id: carta.id,
@@ -107,11 +121,11 @@ export default function AddBulkInventoryScreen() {
           intercambiable: true,
           foto_url,
         })
-  
+
         if (error) throw error
       }
-  
-      showSnackbar('Cartas subidas exitosamente')
+
+      showSnackbar('Cartas subidas exitosamente', '#00B0FF')
       setCartas([])
     } catch (e) {
       console.error('Upload Error', e)

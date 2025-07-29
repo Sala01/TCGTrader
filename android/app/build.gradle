@@ -88,12 +88,12 @@ android {
 
     namespace 'com.onlycarry.tcgtrader'
     defaultConfig {
+missingDimensionStrategy "store", "play"
         applicationId 'com.onlycarry.tcgtrader'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0.0"
-        missingDimensionStrategy 'store', 'play'
+        versionName "1.0.1"
     }
     signingConfigs {
         debug {

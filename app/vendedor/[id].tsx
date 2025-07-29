@@ -65,27 +65,8 @@ export default function VendedorPerfilScreen() {
         rating={parseFloat(vendedor.rating ?? '0')}
         sales_total={parseInt(vendedor.sales_total ?? '0')}
         estado_id={parseInt(vendedor.estado_id ?? '0')}
-        municipio_id={parseInt(vendedor.municipio_id ?? '0')}
+        pais_id={parseInt(vendedor.pais_id ?? '0')}
       />
-
-      <Button
-        icon="chat"
-        mode="contained"
-        buttonColor="#00B0FF"
-        textColor="#1C1C1C"
-        style={styles.button}
-        onPress={() =>
-          router.push({
-            pathname: '/chat/[id]',
-            params: {
-              id: vendedor.id,
-              nombre: vendedor.username,
-            },
-          })
-        }
-      >
-        Contactar vendedor
-      </Button>
 
       <Text style={styles.subtitulo}>Valoraciones recientes:</Text>
 

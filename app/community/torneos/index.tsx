@@ -17,36 +17,49 @@ type Tournament = {
 export default function TournamentsScreen() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const getCurrentMonthParam = () => {
     const now = new Date();
     const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // getMonth() es base 0
+    const month = String(now.getMonth() + 1).padStart(2, '0');
     return `${year}-${month}`;
   };
-
 
   const fetchTournaments = async () => {
     try {
       setLoading(true);
-      const currentMonth = getCurrentMonthParam();
-      const url = `https://ygoprodeck.com/api/tournament/getTournaments.php?date=${currentMonth}&format=TCG&`;
-      const res = await fetch(url);
-      const json = await res.json();
+      setError(null);
 
+      const currentMonth = getCurrentMonthParam();
+      const url = `https://ygoprodeck.com/api/tournament/getTournaments.php?date=${currentMonth}&format=TCG`;
+
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0',
+          'Accept': 'application/json',
+          'Referer': 'https://ygoprodeck.com/tournaments/',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText || 'al obtener los torneos'}`);
+
+      const json = await res.json();
       const allTournaments = json.data || [];
+
       const latestTen = allTournaments
         .sort((a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime())
         .slice(0, 10);
 
       setTournaments(latestTen);
-    } catch (error) {
-      console.error('Error al obtener torneos:', error);
+    } catch (err: any) {
+      console.error('Error al obtener torneos:', err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     fetchTournaments();
@@ -70,7 +83,6 @@ export default function TournamentsScreen() {
           <Text style={styles.meta}>🥇 Ganador: {item.winner ?? 'Desconocido'}</Text>
         </View>
       </TouchableOpacity>
-
     );
   };
 
@@ -78,6 +90,10 @@ export default function TournamentsScreen() {
     <View style={styles.container}>
       {loading ? (
         <ActivityIndicator animating={true} color="#00B0FF" />
+      ) : error ? (
+        <Text style={styles.error}>❌ {error}</Text>
+      ) : tournaments.length === 0 ? (
+        <Text style={styles.empty}>No hay torneos disponibles este mes.</Text>
       ) : (
         <FlatList
           data={tournaments}
@@ -97,19 +113,29 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    backgroundColor: '#BFCED6',
+    backgroundColor: '#1C1C2E',
     padding: 12,
-    borderRadius: 10,
+    borderRadius: 12,
     marginBottom: 12,
   },
   title: {
     fontWeight: 'bold',
     fontSize: 16,
-    color: '#1C1C1C',
+    color: '#FFF',
     marginBottom: 6,
   },
   meta: {
     fontSize: 13,
-    color: '#444',
+    color: '#BFCED6',
+  },
+  empty: {
+    color: '#BFCED6',
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  error: {
+    color: 'red',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });

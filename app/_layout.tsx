@@ -7,8 +7,16 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { Provider as PaperProvider } from 'react-native-paper'
 import { SnackbarProvider } from '@/providers/SnackbarProvider'
+import * as Notifications from 'expo-notifications'
+import { router } from 'expo-router'
 
-
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+})
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -26,6 +34,17 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+      const data = response.notification.request.content.data;
+      //console.log('Tocaste la notificación con data:', data);
+      //router.push(`/chat/${data.chat_id}`)
+    })
+
+    return () => subscription.remove()
+  }, [])
+
 
   if (!loaded) return null;
 

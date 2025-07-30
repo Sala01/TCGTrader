@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "903441533051",
+    "project_id": "tcg-traders",
+    "storage_bucket": "tcg-traders.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:903441533051:android:9a4e0b3f9336b46909bade",
+        "android_client_info": {
+          "package_name": "com.onlycarry.tcgtrader"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAujZaIAbXnsPyNGUngNZev3nTg7oCXPS0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

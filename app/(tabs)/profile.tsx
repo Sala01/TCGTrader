@@ -186,16 +186,22 @@ export default function PerfilScreen() {
               }}
             />
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: '#1C1C2E', margin: 12, borderRadius: 16 }}>
-            <Image source={{ uri: userData.avatar_url }} style={{ width: 80, height: 80, borderRadius: 40, borderWidth: 2, borderColor: '#00B0FF', marginRight: 12 }} />
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#BFCED6' }}>{userData.username}</Text>
-              <Text style={{ fontSize: 14, color: '#ccc' }}>{user.email}</Text>
-              <Text style={{ fontSize: 14, color: '#ccc' }}>{userData.pais_nombre}, {userData.estado_nombre}</Text>
-              <Text style={{ color: '#ccc', marginTop: 4 }}>⭐ {rating} ({reviewCount})</Text>
+          {user && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: '#1C1C2E', margin: 12, borderRadius: 16 }}>
+              <Image
+                source={{ uri: userData.avatar_url }}
+                style={{ width: 80, height: 80, borderRadius: 40, borderWidth: 2, borderColor: '#00B0FF', marginRight: 12 }}
+              />
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#BFCED6' }}>{userData.username}</Text>
+                <Text style={{ fontSize: 14, color: '#ccc' }}>{user.email}</Text>
+                <Text style={{ fontSize: 14, color: '#ccc' }}>{userData.pais_nombre}, {userData.estado_nombre}</Text>
+                <Text style={{ color: '#ccc', marginTop: 4 }}>⭐ {rating} ({reviewCount})</Text>
+              </View>
+              <IconButton icon="pencil" iconColor="#00B0FF" onPress={() => router.push('/edit-profile')} />
             </View>
-            <IconButton icon="pencil" iconColor="#00B0FF" onPress={() => router.push('/edit-profile')} />
-          </View>
+          )}
+
 
           <View style={{
             flexDirection: 'row',

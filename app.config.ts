@@ -5,6 +5,7 @@ export default {
     name: 'TCG Trader',
     slug: 'tcg-trader',
     version: '1.0.0-b2',
+    projectId: '0c1f931a-be48-463a-9dae-149b06176d5c',
     owner: 'onlycarry',
     scheme: 'myapp',
     orientation: 'portrait',
@@ -22,6 +23,8 @@ export default {
       runtimeVersion: '1.0.0'
     },
     android: {
+      googleServicesFile: './android/app/google-services.json',
+      useNextNotificationsApi: true,
       package: 'com.onlycarry.tcgtrader',
       runtimeVersion: '1.0.0',
       adaptiveIcon: {
@@ -45,7 +48,8 @@ export default {
           resizeMode: 'contain',
           backgroundColor: '#0A0F1C'
         }
-      ]
+      ],
+      'expo-notifications'
     ],
     experiments: {
       typedRoutes: true

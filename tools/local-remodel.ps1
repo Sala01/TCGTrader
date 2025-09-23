@@ -21,11 +21,15 @@ git config user.email "bot@local" | Out-Null
 git checkout -b $branch
 
 # 3) Asegura Ollama encendido
+$ollamaExe = "C:\Users\exsal\AppData\Local\Programs\Ollama\ollama.exe"
 $ollama = Get-Process -Name "ollama" -ErrorAction SilentlyContinue
 if (-not $ollama) {
-  Start-Process -FilePath "ollama" -ArgumentList "serve" -NoNewWindow
+  Start-Process -FilePath $ollamaExe -ArgumentList "serve" -NoNewWindow
   Start-Sleep -Seconds 3
 }
+try { & $ollamaExe list | Out-Null } catch { Write-Host "Ollama no disponible" }
+try { & $ollamaExe run qwen2.5-coder:7b -p "ok" | Out-Null } catch { & $ollamaExe pull qwen2.5-coder:7b }
+
 # Modelo local (puedes cambiarlo a llama3.1:8b, etc.)
 try {
   & ollama list | Out-Null

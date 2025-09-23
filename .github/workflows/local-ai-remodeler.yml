@@ -33,10 +33,9 @@ jobs:
       - name: Ensure Ollama is running (Windows)
         shell: powershell
         run: |
-          $ollamaExe = "$env:ProgramFiles\Ollama\ollama.exe"
+          $ollamaExe = "C:\Users\exsal\AppData\Local\Programs\Ollama\ollama.exe"
           if (-not (Test-Path $ollamaExe)) {
-            Write-Error "No se encontró Ollama en $env:ProgramFiles\Ollama\ollama.exe. Instálalo en Windows."
-            exit 1
+            Write-Error "No se encontró: $ollamaExe"; exit 1
           }
 
           # Arranca el servidor si no está
@@ -46,9 +45,10 @@ jobs:
             Start-Sleep -Seconds 3
           }
 
-          # Pull del modelo (idempotente)
+          # Verifica y baja el modelo (idempotente)
           & $ollamaExe list | Out-Null
           try { & $ollamaExe pull qwen2.5-coder:7b } catch { }
+
 
       - name: Ensure Aider is available (Windows)
         shell: powershell

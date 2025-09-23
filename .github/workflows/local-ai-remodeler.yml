@@ -17,7 +17,8 @@ permissions:
 
 jobs:
   remodel:
-    runs-on: self-hosted  # Tu runner de Windows
+    # Asegúrate de que tu runner es Windows; los self-hosted traen estas labels por defecto
+    runs-on: [self-hosted, Windows]
     if: >
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'issue_comment' &&
@@ -28,33 +29,44 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Usa Windows PowerShell clásico
       - name: Ensure Ollama is running (Windows)
-        shell: pwsh
+        shell: powershell
         run: |
-          if (-not (Get-Process -Name "ollama" -ErrorAction SilentlyContinue)) {
-            Start-Process -FilePath "ollama" -ArgumentList "serve" -NoNewWindow
+          $ollamaExe = "$env:ProgramFiles\Ollama\ollama.exe"
+          if (-not (Test-Path $ollamaExe)) {
+            Write-Error "No se encontró Ollama en $env:ProgramFiles\Ollama\ollama.exe. Instálalo en Windows."
+            exit 1
+          }
+
+          # Arranca el servidor si no está
+          $p = Get-Process -Name "ollama" -ErrorAction SilentlyContinue
+          if (-not $p) {
+            Start-Process -FilePath $ollamaExe -ArgumentList "serve" -WindowStyle Hidden
             Start-Sleep -Seconds 3
           }
-          try { ollama list } catch { Write-Host "Ollama no en PATH, asegúralo en el runner." }
-          try { ollama pull qwen2.5-coder:7b } catch { }
+
+          # Pull del modelo (idempotente)
+          & $ollamaExe list | Out-Null
+          try { & $ollamaExe pull qwen2.5-coder:7b } catch { }
 
       - name: Ensure Aider is available (Windows)
-        shell: pwsh
+        shell: powershell
         run: |
           if (-not (Get-Command aider -ErrorAction SilentlyContinue)) {
             py -m pip install --user aider-chat==0.59.1
-            echo "$env:USERPROFILE\AppData\Roaming\Python\Python311\Scripts" | Out-File -FilePath $env:GITHUB_PATH -Append
+            "$env:USERPROFILE\AppData\Roaming\Python\Python311\Scripts" | Out-File -FilePath $env:GITHUB_PATH -Append
           }
           aider --version
 
       - name: Run Local Remodel (PowerShell)
-        shell: pwsh
+        shell: powershell
         env:
           INPUT_TASK: ${{ github.event.inputs.task }}
           COMMENT: ${{ github.event.comment.body }}
         run: |
           if (-not (Test-Path "tools/local-remodel.ps1")) {
-            Write-Host "ERROR: Falta tools/local-remodel.ps1"
+            Write-Error "Falta tools/local-remodel.ps1"
             exit 1
           }
           powershell -ExecutionPolicy Bypass -File tools/local-remodel.ps1

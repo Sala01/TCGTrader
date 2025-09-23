@@ -62,18 +62,13 @@ jobs:
           Write-Host "Using Python at: $py"
           & $py --version
           & $py -m pip install --upgrade pip
-          # Versión compatible con Py 3.11
-          & $py -m pip install "aider-chat==0.16.0"
-          # Ubica el ejecutable de aider y añádelo al PATH del job
+          # Aider moderno (soporta Ollama y --weak-model)
+          & $py -m pip install "aider-chat==0.86.1"
+          # Ubica aider.exe y expón variables
           $pyDir = Split-Path $py -Parent
           $scriptsDir = Join-Path $pyDir "Scripts"
           $aiderExe = Join-Path $scriptsDir "aider.exe"
-          if (-not (Test-Path $aiderExe)) {
-            Write-Error "No se encontró aider.exe en $aiderExe"
-            exit 1
-          }
-          Write-Host "aider.exe en: $aiderExe"
-          # Exporta a PATH Y además a una var de entorno para tu script
+          if (-not (Test-Path $aiderExe)) { Write-Error "No se encontró aider.exe en $aiderExe"; exit 1 }
           "$scriptsDir" | Out-File -FilePath $env:GITHUB_PATH -Append
           echo "AIDER_EXE=$aiderExe" | Out-File -FilePath $env:GITHUB_ENV -Append
           & $aiderExe --version
@@ -91,5 +86,3 @@ jobs:
             exit 1
           }
           powershell -ExecutionPolicy Bypass -File tools/local-remodel.ps1 -RawTask "$env:INPUT_TASK $env:COMMENT"
-
-

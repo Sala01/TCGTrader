@@ -7,7 +7,8 @@ $ErrorActionPreference = "Stop"
 # 1) Toma la instrucción desde el input del workflow o comentario
 if (-not $RawTask -or $RawTask -eq "") { $RawTask = "$env:INPUT_TASK" }
 if (-not $RawTask -or $RawTask -eq "") { $RawTask = "$env:COMMENT" }
-$Task = ($RawTask -replace '^(\/(remodel|refactor))\s*','', 'IgnoreCase').Trim()
+# Quita el prefijo /remodel o /refactor (case-insensitive)
+$Task = ($RawTask -ireplace '^(\/(remodel|refactor))\s*','').Trim()
 if (-not $Task) { $Task = "Remodelar Home a grid de botones de navegación" }
 
 # 2) Prepara git/branch
@@ -18,22 +19,20 @@ git checkout -b $branch
 
 # 3) Asegura Ollama encendido (ruta fija en tu Windows)
 $ollamaExe = "C:\Users\exsal\AppData\Local\Programs\Ollama\ollama.exe"
-if (-not (Test-Path $ollamaExe)) {
-  Write-Error "No se encontró Ollama en: $ollamaExe"; exit 1
-}
+if (-not (Test-Path $ollamaExe)) { Write-Error "No se encontró Ollama en: $ollamaExe"; exit 1 }
 $ollama = Get-Process -Name "ollama" -ErrorAction SilentlyContinue
 if (-not $ollama) {
   Start-Process -FilePath $ollamaExe -ArgumentList "serve" -NoNewWindow
   Start-Sleep -Seconds 3
 }
 # Verifica y descarga el modelo si falta (idempotente)
-try { & $ollamaExe list | Out-Null } catch { Write-Host "Ollama aún no responde, reintenta..."; Start-Sleep -Seconds 2 }
+try { & $ollamaExe list | Out-Null } catch { Start-Sleep -Seconds 2 }
 try { & $ollamaExe pull qwen2.5-coder:7b } catch { }
 
 # 4) Ubica Aider (lo instala el workflow y expone AIDER_EXE)
 $aiderExe = $env:AIDER_EXE
 if (-not $aiderExe -or -not (Test-Path $aiderExe)) {
-  Write-Error "No se encontró Aider. Esperaba AIDER_EXE en el entorno. Revisa el workflow."; exit 1
+  Write-Error "No se encontró Aider (AIDER_EXE). Revisa el paso de instalación en el workflow."; exit 1
 }
 
 # 5) Define alcance del repo (limita carpetas grandes)
@@ -63,13 +62,8 @@ Write-Host "Lanzando Aider con tarea: $Task"
 & $aiderExe @aiderArgs
 
 # 8) Empuja cambios y crea PR
-try {
-  git push -u origin $branch
-} catch {
-  Write-Host "No hay cambios para empujar o hubo un error en el push."
-}
+try { git push -u origin $branch } catch { Write-Host "No hay cambios para empujar o hubo un error en el push." }
 
-# Crea PR si existe gh; intenta develop y luego main
 if (Get-Command gh -ErrorAction SilentlyContinue) {
   try {
     gh pr create --title "AI Remodel: $Task" --body "Cambios generados por Aider (modelo local via Ollama)." --base develop --head $branch

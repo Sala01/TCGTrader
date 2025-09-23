@@ -92,8 +92,8 @@ missingDimensionStrategy "store", "play"
         applicationId 'com.onlycarry.tcgtrader'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0.0-b2"
+        versionCode 21
+        versionName "1.0.0-PA01"
     }
     signingConfigs {
         debug {

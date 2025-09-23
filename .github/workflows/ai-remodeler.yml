@@ -1,0 +1,153 @@
+name: AI Remodeler
+on:
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "Describe la remodelación a realizar"
+        required: true
+        default: "Remodelar Home a un grid de botones de navegación"
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  remodel:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issue_comment' &&
+       (contains(github.event.comment.body, '/remodel') || contains(github.event.comment.body, '/refactor')))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with: { node-version: '20' }
+
+      - name: Install deps
+        run: npm ci || npm i
+
+      - name: AI Remodeler tool
+        run: |
+          mkdir -p tools/prompts
+          cat > tools/ai-remodeler.mjs <<'EOF'
+import fs from "fs";
+import path from "path";
+import { execSync } from "child_process";
+import OpenAI from "openai";
+
+// -------- Config --------
+const MODEL = process.env.OPENAI_MODEL || "o4-mini"; // puedes cambiar a gpt-4.1-mini, etc.
+const TASK = (process.env.TASK || "").replace(/^\/(remodel|refactor)\s*/i, "").trim();
+const API_KEY = process.env.OPENAI_API_KEY;
+if (!API_KEY) { console.error("Falta OPENAI_API_KEY"); process.exit(1); }
+const client = new OpenAI({ apiKey: API_KEY });
+
+const run = (cmd) => execSync(cmd, { stdio: "inherit" });
+
+// Lista de archivos del repo para dar contexto al modelo
+function listFiles() {
+  return execSync("git ls-files", { encoding: "utf8" }).split("\n").filter(Boolean);
+}
+function readText(p) { try { return fs.readFileSync(p, "utf8"); } catch { return ""; } }
+function writeText(p, content) {
+  fs.mkdirSync(path.dirname(p), { recursive: true });
+  fs.writeFileSync(p, content, "utf8");
+}
+
+// Preparamos un snapshot de contexto (rutas + primeras líneas)
+function repoSnapshot(maxFiles = 80, headLines = 30) {
+  const files = listFiles().slice(0, maxFiles);
+  return files.map(f => `- ${f}\n${readText(f).split("\n").slice(0, headLines).join("\n")}`).join("\n\n");
+}
+
+// Llamada a OpenAI para que proponga plan + parches
+async function askForPatches(task, snapshot) {
+  const system = `You are a senior full-stack engineer who edits codebases.
+Rules:
+- When MODIFYING files, output unified diffs in valid 'git diff' format starting with: "diff --git a/… b/…"
+- When CREATING files, output in fenced blocks:
+\`\`\`
+---file:<relative/path>---
+<file content>
+\`\`\`
+- Keep edits minimal but high-impact. Compile/run locally when possible.
+- Stack priorities:
+  * React Native/Expo (TS) y/o Angular (según detectes en repo).
+  * Estilo TCG Trader (fondo #0A0F1C, cards #1C1C2E, texto blanco, acentos #00B0FF/#FFB300).
+- Include any needed imports/routes. Add basic tests if trivial.`;
+
+  const user = `Remodel task: ${task}
+
+Repo snapshot (subset):
+${snapshot}
+
+Deliver:
+1) Short plan (bullets).
+2) Patches and/or new files. Ensure code builds (best effort).
+3) If navigation/screens are missing, create minimal components/routes.
+`;
+  const resp = await client.chat.completions.create({
+    model: MODEL,
+    temperature: 0.2,
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: user }
+    ]
+  });
+  return resp.choices?.[0]?.message?.content || "";
+}
+
+// Aplica archivos nuevos y diffs
+function applyOutput(out) {
+  // Crear/actualizar archivos
+  for (const m of out.matchAll(/```[\s\S]*?---file:([^\n]+?)---\n([\s\S]*?)```/g)) {
+    const rel = m[1].trim();
+    const content = m[2].replace(/\n?```$/, "");
+    writeText(rel, content);
+    console.log("Created/updated:", rel);
+  }
+  // Aplicar diffs
+  const diffs = out.match(/(^|\n)diff --git[\s\S]+?(?=\n```|$)/g);
+  if (diffs?.length) {
+    fs.writeFileSync("ai.patch", diffs.join("\n"), "utf8");
+    try { run("git apply --whitespace=fix ai.patch"); }
+    catch { console.log("Patch failed; trying 3-way…"); run("git apply --3way ai.patch"); }
+  }
+}
+
+(async () => {
+  const task = TASK || "Remodelar Home a grid de botones de navegación";
+  const snapshot = repoSnapshot();
+  const answer = await askForPatches(task, snapshot);
+  fs.writeFileSync("ai-output.md", answer, "utf8");
+  applyOutput(answer);
+
+  // Opcional: lint/tests si existen
+  try { run("npm run lint --if-present"); } catch {}
+  try { run("npm run test --if-present"); } catch {}
+
+  // Crear rama, commit, push
+  const branch = `ai/remodel/${Date.now()}`;
+  run(`git checkout -b ${branch}`);
+  run(`git add -A`);
+  run(`git commit -m "AI remodel: ${task}" || echo "nothing to commit"`);
+  run(`git push -u origin ${branch}`);
+
+  // Intentar crear PR con GitHub CLI si está disponible
+  try { run(`gh pr create --title "AI Remodel: ${task}" --body-file ai-output.md --base main --head ${branch}`); }
+  catch { console.log("PR no creado automáticamente (falta gh). Rama:", branch); }
+})();
+EOF
+
+      - name: Run AI Remodeler
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: o4-mini
+          TASK: ${{ github.event.inputs.task || github.event.comment.body }}
+        run: node tools/ai-remodeler.mjs

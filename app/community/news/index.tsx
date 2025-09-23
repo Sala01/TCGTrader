@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { View, TextInput, FlatList, StyleSheet, Modal, Pressable } from 'react-native'
+import { View, TextInput, FlatList, StyleSheet, Modal, Pressable, Alert } from 'react-native'
 import { Text, Button, ActivityIndicator, Card } from 'react-native-paper'
 import { askYugiohBot } from '@/lib/askYugiohBot'
 import { canAskQuestion } from '@/lib/questionQuota'
@@ -8,6 +8,7 @@ import { useIAP } from '@/lib/iap/useIAP'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import AuthGuard from '@/components/AuthGuard'
 import useUser from '@/hooks/useUser'
+import { supabase } from '@/lib/supabase'
 
 const PAGE_SIZE = 10
 
@@ -24,9 +25,12 @@ export default function ChatbotScreen() {
   const [questionsRemain, setQuestionsRemain] = useState(0)
   const [currentPlan, setCurrentPlan] = useState('Free')
   const [modalVisible, setModalVisible] = useState(false)
+  const [correctionModalVisible, setCorrectionModalVisible] = useState(false)
+  const [correctionText, setCorrectionText] = useState('')
+  const [selectedAnswer, setSelectedAnswer] = useState<any>(null)
 
   const { user } = useUser()
-  const { products, purchase, initialized } = useIAP()
+  const { products, purchase } = useIAP()
 
   useEffect(() => {
     if (user?.id) {
@@ -46,8 +50,8 @@ export default function ChatbotScreen() {
   const getQuotaColor = () => {
     if (questionLimit === 0) return '#fff'
     const ratio = questionsRemain / questionLimit
-    if (ratio <= 0.6) return '#00FFAA'
     if (ratio <= 0.3) return '#FFB300'
+    if (ratio <= 0.6) return '#00FFAA'
     return '#FF4444'
   }
 
@@ -114,6 +118,40 @@ export default function ChatbotScreen() {
     }
   }
 
+  // Abrir modal de corrección
+  const openCorrectionModal = (item: any) => {
+    setSelectedAnswer(item)
+    setCorrectionText('')
+    setCorrectionModalVisible(true)
+  }
+
+  // Enviar corrección a Supabase
+  const submitCorrection = async () => {
+    if (!correctionText.trim()) {
+      Alert.alert('Error', 'Por favor escribe la corrección antes de enviar.')
+      return
+    }
+
+    const { error } = await supabase
+      .from('answer_corrections')
+      .insert([
+        {
+          user_id: user.id,
+          question_id: selectedAnswer.id,
+          original_question: selectedAnswer.question,
+          original_answer: selectedAnswer.answer,
+          correction: correctionText,
+        },
+      ])
+
+    if (error) {
+      Alert.alert('Error', 'No se pudo enviar la corrección.')
+    } else {
+      Alert.alert('Gracias', 'Tu corrección ha sido enviada.')
+      setCorrectionModalVisible(false)
+    }
+  }
+
   return (
     <AuthGuard>
       <SafeAreaView style={styles.container}>
@@ -122,9 +160,7 @@ export default function ChatbotScreen() {
           <Text style={[styles.quota, { color: getQuotaColor() }]}> {questionsRemain} / {questionLimit} </Text>
         </View>
         <View style={styles.headerRowPlan}>
-          <Text style={{ color: '#aaa', fontSize: 12 }}>
-            Nivel: {currentPlan}
-          </Text>
+          <Text style={{ color: '#aaa', fontSize: 12 }}>Nivel: {currentPlan}</Text>
         </View>
 
         <View style={{ paddingHorizontal: 20 }}>
@@ -136,7 +172,6 @@ export default function ChatbotScreen() {
             style={styles.input}
             multiline
           />
-
           <Button mode="contained" onPress={handleAsk} disabled={loading} style={styles.button}>
             {loading ? 'Consultando...' : 'Preguntar'}
           </Button>
@@ -154,6 +189,9 @@ export default function ChatbotScreen() {
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <Card style={styles.answerCard}>
+              <Pressable onPress={() => openCorrectionModal(item)}>
+                <Text style={styles.correctionLabel}>✏️ Corregir respuesta</Text>
+              </Pressable>
               <Card.Content>
                 <Text style={styles.historyQuestion}>🗨️ {item.question}</Text>
                 <Text style={styles.answerText}>{item.answer}</Text>
@@ -165,6 +203,7 @@ export default function ChatbotScreen() {
           ListFooterComponent={loadingMore ? <ActivityIndicator style={{ marginVertical: 20 }} /> : null}
         />
 
+        {/* Modal de suscripción */}
         <Modal animationType="slide" transparent visible={modalVisible}>
           <View style={styles.modalBackground}>
             <View style={styles.modalContainer}>
@@ -191,6 +230,32 @@ export default function ChatbotScreen() {
             </View>
           </View>
         </Modal>
+
+        {/* Modal de corrección */}
+        <Modal animationType="slide" transparent visible={correctionModalVisible}>
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Corregir respuesta</Text>
+              <Text style={styles.modalText}>
+                Si crees que esta respuesta es incorrecta, por favor escribe aquí tu respuesta correcta:
+              </Text>
+              <TextInput
+                value={correctionText}
+                onChangeText={setCorrectionText}
+                placeholder="Escribe tu corrección..."
+                placeholderTextColor="#aaa"
+                style={styles.input}
+                multiline
+              />
+              <Button mode="contained" style={{ marginTop: 10 }} onPress={submitCorrection}>
+                Enviar corrección
+              </Button>
+              <Pressable onPress={() => setCorrectionModalVisible(false)}>
+                <Text style={styles.modalClose}>Cancelar</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     </AuthGuard>
   )
@@ -204,14 +269,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 20,
-    marginBottom: 0,
   },
   headerRowPlan: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 0,
     marginBottom: 10,
   },
   title: { color: '#fff', fontWeight: 'bold', fontSize: 22 },
@@ -221,7 +283,7 @@ const styles = StyleSheet.create({
     color: 'white',
     padding: 12,
     borderRadius: 8,
-    minHeight: 100,
+    minHeight: 80,
     textAlignVertical: 'top',
   },
   button: { marginTop: 20, backgroundColor: '#00B0FF' },
@@ -229,10 +291,10 @@ const styles = StyleSheet.create({
   answerCard: { marginTop: 20, backgroundColor: '#1C1C2E' },
   answerText: { color: 'white', marginTop: 8 },
   historyQuestion: { color: '#FFB300', fontWeight: 'bold' },
+  correctionLabel: { color: '#00B0FF', padding: 8, fontSize: 12, textDecorationLine: 'underline' },
   modalBackground: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
   modalContainer: {
@@ -240,14 +302,10 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 12,
     width: '85%',
+    alignSelf: 'center',
   },
-  modalTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  modalText: { color: '#ccc', fontSize: 14, lineHeight: 20 },
+  modalTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+  modalText: { color: '#ccc', fontSize: 14, lineHeight: 20, marginBottom: 10 },
   modalClose: {
     color: '#FFB300',
     marginTop: 20,

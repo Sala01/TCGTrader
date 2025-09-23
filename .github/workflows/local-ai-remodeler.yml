@@ -58,22 +58,25 @@ jobs:
       - name: Install Aider with that Python
         shell: powershell
         run: |
-          $py = "${{ steps.py.outputs.python-path }}\python.exe"
+          $py = "${{ steps.py.outputs.python-path }}"
+          Write-Host "Using Python at: $py"
           & $py --version
           & $py -m pip install --upgrade pip
           # Versión compatible con Py 3.11
           & $py -m pip install "aider-chat==0.16.0"
           & $py -m aider --version
 
+
       - name: Run Local Remodel (PowerShell)
         shell: powershell
         env:
           INPUT_TASK: ${{ github.event.inputs.task }}
           COMMENT: ${{ github.event.comment.body }}
-          PYTHON_EXE: ${{ steps.py.outputs.python-path }}\python.exe
+          PYTHON_EXE: ${{ steps.py.outputs.python-path }}
         run: |
           if (-not (Test-Path "tools/local-remodel.ps1")) {
             Write-Error "Falta tools/local-remodel.ps1"
             exit 1
           }
           powershell -ExecutionPolicy Bypass -File tools/local-remodel.ps1 -RawTask "$env:INPUT_TASK $env:COMMENT"
+

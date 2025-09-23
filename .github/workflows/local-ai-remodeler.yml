@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   remodel:
-    # Asegúrate de que tu runner es Windows; los self-hosted traen estas labels por defecto
+    # Runner self-hosted en Windows
     runs-on: [self-hosted, Windows]
     if: >
       github.event_name == 'workflow_dispatch' ||
@@ -29,7 +29,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Usa Windows PowerShell clásico
       - name: Ensure Ollama is running (Windows)
         shell: powershell
         run: |
@@ -50,29 +49,31 @@ jobs:
           try { & $ollamaExe pull qwen2.5-coder:7b } catch { }
 
       - name: Setup Python 3.11
+        id: py
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           architecture: 'x64'
 
-      - name: Ensure Aider is available (Windows)
+      - name: Install Aider with that Python
         shell: powershell
         run: |
-          python --version
-          py -m pip install --upgrade pip
-          # Versiones compatibles con Py 3.11 (<3.13). Elige una estable:
-          py -m pip install "aider-chat==0.85.5"
-          # Verificación sin depender del PATH:
-          py -m aider --version
+          $py = "${{ steps.py.outputs.python-path }}\python.exe"
+          & $py --version
+          & $py -m pip install --upgrade pip
+          # Versión compatible con Py 3.11
+          & $py -m pip install "aider-chat==0.16.0"
+          & $py -m aider --version
 
       - name: Run Local Remodel (PowerShell)
         shell: powershell
         env:
           INPUT_TASK: ${{ github.event.inputs.task }}
           COMMENT: ${{ github.event.comment.body }}
+          PYTHON_EXE: ${{ steps.py.outputs.python-path }}\python.exe
         run: |
           if (-not (Test-Path "tools/local-remodel.ps1")) {
             Write-Error "Falta tools/local-remodel.ps1"
             exit 1
           }
-          powershell -ExecutionPolicy Bypass -File tools/local-remodel.ps1
+          powershell -ExecutionPolicy Bypass -File tools/local-remodel.ps1 -RawTask "$env:INPUT_TASK $env:COMMENT"

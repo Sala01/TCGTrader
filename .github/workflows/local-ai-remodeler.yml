@@ -49,15 +49,21 @@ jobs:
           & $ollamaExe list | Out-Null
           try { & $ollamaExe pull qwen2.5-coder:7b } catch { }
 
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          architecture: 'x64'
 
       - name: Ensure Aider is available (Windows)
         shell: powershell
         run: |
-          if (-not (Get-Command aider -ErrorAction SilentlyContinue)) {
-            py -m pip install --user aider-chat==0.59.1
-            "$env:USERPROFILE\AppData\Roaming\Python\Python311\Scripts" | Out-File -FilePath $env:GITHUB_PATH -Append
-          }
-          aider --version
+          python --version
+          py -m pip install --upgrade pip
+          # Versiones compatibles con Py 3.11 (<3.13). Elige una estable:
+          py -m pip install "aider-chat==0.85.5"
+          # Verificación sin depender del PATH:
+          py -m aider --version
 
       - name: Run Local Remodel (PowerShell)
         shell: powershell

@@ -64,8 +64,19 @@ jobs:
           & $py -m pip install --upgrade pip
           # Versión compatible con Py 3.11
           & $py -m pip install "aider-chat==0.16.0"
-          & $py -m aider --version
-
+          # Ubica el ejecutable de aider y añádelo al PATH del job
+          $pyDir = Split-Path $py -Parent
+          $scriptsDir = Join-Path $pyDir "Scripts"
+          $aiderExe = Join-Path $scriptsDir "aider.exe"
+          if (-not (Test-Path $aiderExe)) {
+            Write-Error "No se encontró aider.exe en $aiderExe"
+            exit 1
+          }
+          Write-Host "aider.exe en: $aiderExe"
+          # Exporta a PATH Y además a una var de entorno para tu script
+          "$scriptsDir" | Out-File -FilePath $env:GITHUB_PATH -Append
+          echo "AIDER_EXE=$aiderExe" | Out-File -FilePath $env:GITHUB_ENV -Append
+          & $aiderExe --version
 
       - name: Run Local Remodel (PowerShell)
         shell: powershell
@@ -73,10 +84,12 @@ jobs:
           INPUT_TASK: ${{ github.event.inputs.task }}
           COMMENT: ${{ github.event.comment.body }}
           PYTHON_EXE: ${{ steps.py.outputs.python-path }}
+          AIDER_EXE: ${{ env.AIDER_EXE }}
         run: |
           if (-not (Test-Path "tools/local-remodel.ps1")) {
             Write-Error "Falta tools/local-remodel.ps1"
             exit 1
           }
           powershell -ExecutionPolicy Bypass -File tools/local-remodel.ps1 -RawTask "$env:INPUT_TASK $env:COMMENT"
+
 

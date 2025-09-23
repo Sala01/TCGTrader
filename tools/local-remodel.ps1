@@ -4,13 +4,9 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# 1) Normaliza la instrucción
-if (-not $RawTask -or $RawTask -eq "") {
-  $RawTask = "$env:INPUT_TASK"
-}
-if (-not $RawTask -or $RawTask -eq "") {
-  $RawTask = "$env:COMMENT"
-}
+# 1) Toma la instrucción desde el input del workflow o comentario
+if (-not $RawTask -or $RawTask -eq "") { $RawTask = "$env:INPUT_TASK" }
+if (-not $RawTask -or $RawTask -eq "") { $RawTask = "$env:COMMENT" }
 $Task = ($RawTask -replace '^(\/(remodel|refactor))\s*','', 'IgnoreCase').Trim()
 if (-not $Task) { $Task = "Remodelar Home a grid de botones de navegación" }
 
@@ -20,36 +16,27 @@ git config user.name  "ai-remodeler-bot" | Out-Null
 git config user.email "bot@local" | Out-Null
 git checkout -b $branch
 
-# 3) Asegura Ollama encendido
+# 3) Asegura Ollama encendido (ruta fija en tu Windows)
 $ollamaExe = "C:\Users\exsal\AppData\Local\Programs\Ollama\ollama.exe"
+if (-not (Test-Path $ollamaExe)) {
+  Write-Error "No se encontró Ollama en: $ollamaExe"; exit 1
+}
 $ollama = Get-Process -Name "ollama" -ErrorAction SilentlyContinue
 if (-not $ollama) {
   Start-Process -FilePath $ollamaExe -ArgumentList "serve" -NoNewWindow
   Start-Sleep -Seconds 3
 }
-try { & $ollamaExe list | Out-Null } catch { Write-Host "Ollama no disponible" }
-try { & $ollamaExe run qwen2.5-coder:7b -p "ok" | Out-Null } catch { & $ollamaExe pull qwen2.5-coder:7b }
+# Verifica y descarga el modelo si falta (idempotente)
+try { & $ollamaExe list | Out-Null } catch { Write-Host "Ollama aún no responde, reintenta..."; Start-Sleep -Seconds 2 }
+try { & $ollamaExe pull qwen2.5-coder:7b } catch { }
 
-# Modelo local (puedes cambiarlo a llama3.1:8b, etc.)
-try {
-  & ollama list | Out-Null
-} catch {
-  Write-Host "Ollama no está disponible en PATH."
-}
-try {
-  & ollama run qwen2.5-coder:7b -p "ok" | Out-Null
-} catch {
-  & ollama pull qwen2.5-coder:7b
+# 4) Ubica Aider (lo instala el workflow y expone AIDER_EXE)
+$aiderExe = $env:AIDER_EXE
+if (-not $aiderExe -or -not (Test-Path $aiderExe)) {
+  Write-Error "No se encontró Aider. Esperaba AIDER_EXE en el entorno. Revisa el workflow."; exit 1
 }
 
-# 4) Asegura Aider
-$hasAider = (Get-Command aider -ErrorAction SilentlyContinue) -ne $null
-if (-not $hasAider) {
-  py -m pip install --user aider-chat==0.59.1
-  $env:Path += ";" + "$env:USERPROFILE\AppData\Roaming\Python\Python311\Scripts"
-}
-
-# 5) Define alcance del repo para que no edite todo si es gigante
+# 5) Define alcance del repo (limita carpetas grandes)
 $includePaths = @("app","src","packages","apps","lib") | Where-Object { Test-Path $_ }
 if ($includePaths.Count -eq 0) { $includePaths = @(".") }
 
@@ -73,10 +60,9 @@ $aiderArgs = @(
 ) + $includePaths
 
 Write-Host "Lanzando Aider con tarea: $Task"
-aider @aiderArgs
+& $aiderExe @aiderArgs
 
 # 8) Empuja cambios y crea PR
-# Si no hubo commits, no habrá diff contra origin
 try {
   git push -u origin $branch
 } catch {

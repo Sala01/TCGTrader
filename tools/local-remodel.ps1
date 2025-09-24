@@ -35,9 +35,13 @@ if (-not $aiderExe -or -not (Test-Path $aiderExe)) {
   Write-Error "No se encontró Aider (AIDER_EXE). Revisa el paso de instalación en el workflow."; exit 1
 }
 
-# 5) Modo no interactivo para runners (evita errores de TUI/Unicode)
+# 5) Modo no-interactivo + provider Ollama
 $env:PYTHONIOENCODING = "utf-8"
 $env:TERM = "xterm"
+# Fija la URL del daemon de Ollama
+if (-not $env:OLLAMA_HOST) { $env:OLLAMA_HOST = "http://127.0.0.1:11434" }
+# Algunas builds usan OLLAMA_BASE_URL; setéala también por si acaso
+if (-not $env:OLLAMA_BASE_URL) { $env:OLLAMA_BASE_URL = $env:OLLAMA_HOST }
 
 # 6) Guía para la remodelación
 $guide = @"
@@ -51,12 +55,11 @@ Reglas:
 "@
 
 # 7) Ejecuta Aider con el modelo local de Ollama
-#   - Usa el REPO raíz "." (un solo directorio) para evitar el error "directory not provided alone"
-#   - Flags no-interactivos: --yes, --auto-commits, --no-pretty, --git
+#   - Usa repo raíz "." y flags no-interactivos
 $aiderArgs = @(
-  "--model","ollama:qwen2.5-coder:7b",
+  "--model","ollama/qwen2.5-coder:7b",
   "--yes","--auto-commits",
-  "--no-pretty","--git",
+  "--no-pretty","--git","--no-show-model-warnings","--no-gitignore",
   "--message",$guide,
   "."
 )

@@ -32,19 +32,11 @@ jobs:
       - name: Ensure Ollama is running (Windows)
         shell: powershell
         run: |
+          $env:OLLAMA_HOST = "http://127.0.0.1:11434"
           $ollamaExe = "C:\Users\exsal\AppData\Local\Programs\Ollama\ollama.exe"
-          if (-not (Test-Path $ollamaExe)) {
-            Write-Error "No se encontró: $ollamaExe"; exit 1
-          }
-
-          # Arranca el servidor si no está
+          if (-not (Test-Path $ollamaExe)) { Write-Error "No se encontró: $ollamaExe"; exit 1 }
           $p = Get-Process -Name "ollama" -ErrorAction SilentlyContinue
-          if (-not $p) {
-            Start-Process -FilePath $ollamaExe -ArgumentList "serve" -WindowStyle Hidden
-            Start-Sleep -Seconds 3
-          }
-
-          # Verifica y baja el modelo (idempotente)
+          if (-not $p) { Start-Process -FilePath $ollamaExe -ArgumentList "serve" -WindowStyle Hidden; Start-Sleep -Seconds 3 }
           & $ollamaExe list | Out-Null
           try { & $ollamaExe pull qwen2.5-coder:7b } catch { }
 

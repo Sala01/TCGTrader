@@ -5,6 +5,8 @@ import { View, StyleSheet, FlatList } from 'react-native'
 import { Text, Button, Card, Avatar } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
 import VendedorInfo from '@/components/VendedorInfo'
+import { COLORS } from '../../constants/GlobalStyles';
+
 
 export default function VendedorPerfilScreen() {
   const { id } = useLocalSearchParams()
@@ -86,7 +88,7 @@ export default function VendedorPerfilScreen() {
           </Card>
         )}
         ListEmptyComponent={
-          <Text style={{ color: '#888', textAlign: 'center', marginTop: 12 }}>
+          <Text style={{ color: COLORS.color888, textAlign: 'center', marginTop: 12 }}>
             Este vendedor aún no tiene valoraciones.
           </Text>
         }
@@ -98,11 +100,11 @@ export default function VendedorPerfilScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0F1C',
+    backgroundColor: COLORS.color0A0F1C,
     padding: 16,
   },
   title: {
-    color: '#FFF',
+    color: COLORS.colorFFF,
     fontSize: 18,
     textAlign: 'center',
     marginTop: 20,
@@ -112,13 +114,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   subtitulo: {
-    color: '#BFCED6',
+    color: COLORS.colorBFCED6,
     fontSize: 16,
     fontWeight: 'bold',
     marginVertical: 12,
   },
   reviewCard: {
     marginBottom: 12,
-    backgroundColor: '#1C1C2E',
+    backgroundColor: COLORS.color1C1C2E,
   },
 })

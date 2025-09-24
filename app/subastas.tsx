@@ -3,6 +3,8 @@ import { View, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-nativ
 import { Text, Card, Appbar, SegmentedButtons, Menu, Button } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
 import { router } from 'expo-router'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 export default function SubastasScreen() {
   const [subastas, setSubastas] = useState<any[]>([])
@@ -61,13 +63,13 @@ export default function SubastasScreen() {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header elevated mode="center-aligned" style={{ backgroundColor: '#0A0F1C' }}>
+      <Appbar.Header elevated mode="center-aligned" style={{ backgroundColor: COLORS.color0A0F1C }}>
         <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title="Subastas activas" titleStyle={{ color: 'white' }} />
+        <Appbar.Content title="Subastas activas" titleStyle={{ color: COLORS.white }} />
         <Menu
           visible={menuVisible}
           onDismiss={() => setMenuVisible(false)}
-          anchor={<Appbar.Action icon="tune" color="white" onPress={() => setMenuVisible(true)} />}>
+          anchor={<Appbar.Action icon="tune" color={COLORS.white} onPress={() => setMenuVisible(true)} />}>
           <Menu.Item onPress={() => { setOrden('recientes'); setMenuVisible(false) }} title="Más recientes" />
           <Menu.Item onPress={() => { setOrden('valor'); setMenuVisible(false) }} title="Mayor valor actual" />
         </Menu>
@@ -77,11 +79,11 @@ export default function SubastasScreen() {
         value={filtro}
         onValueChange={(val) => setFiltro(val as 'todas' | 'urgentes')}
         buttons={[
-          { value: 'todas', label: 'Todas', labelStyle: { color: filtro === 'todas' ? '#000' : '#FFF' } },
-          { value: 'urgentes', label: 'Finalizan pronto', labelStyle: { color: filtro === 'urgentes' ? '#000' : '#FFF' } },
+          { value: 'todas', label: 'Todas', labelStyle: { color: filtro === 'todas' ? COLORS.color000 : COLORS.colorFFF } },
+          { value: 'urgentes', label: 'Finalizan pronto', labelStyle: { color: filtro === 'urgentes' ? COLORS.color000 : COLORS.colorFFF } },
         ]}
         style={{ marginHorizontal: 16, marginTop: 16 }}
-        theme={{ colors: { secondaryContainer: '#00B0FF' } }}
+        theme={{ colors: { secondaryContainer: COLORS.color00B0FF } }}
       />
 
       <FlatList
@@ -108,20 +110,20 @@ export default function SubastasScreen() {
             }})}
             style={{ marginBottom: 16 }}
           >
-            <Card style={{ backgroundColor: '#1C1C2E' }}>
+            <Card style={{ backgroundColor: COLORS.color1C1C2E }}>
               <View style={{ flexDirection: 'row' }}>
                 <Image source={{ uri: item.foto_url }} style={styles.image} />
                 <Card.Content style={{ flex: 1 }}>
-                  <Text style={{ color: 'white', fontWeight: 'bold', marginBottom: 4 }}>{item.users.username}</Text>
-                  <Text style={{ color: '#00B0FF' }}>Actual: ${item.valor_actual}</Text>
-                  <Text style={{ color: '#FFB300' }}>Puja mínima: ${item.puja_minima}</Text>
-                  <Text style={{ color: '#ccc' }}>{getTiempoRestante(item.fecha_limite)}</Text>
+                  <Text style={{ color: COLORS.white, fontWeight: 'bold', marginBottom: 4 }}>{item.users.username}</Text>
+                  <Text style={{ color: COLORS.color00B0FF }}>Actual: ${item.valor_actual}</Text>
+                  <Text style={{ color: COLORS.colorFFB300 }}>Puja mínima: ${item.puja_minima}</Text>
+                  <Text style={{ color: COLORS.colorCCC }}>{getTiempoRestante(item.fecha_limite)}</Text>
                 </Card.Content>
               </View>
             </Card>
           </TouchableOpacity>
         )}
-        ListEmptyComponent={<Text style={{ color: 'gray', textAlign: 'center', marginTop: 40 }}>No hay subastas activas.</Text>}
+        ListEmptyComponent={<Text style={{ color: COLORS.gray, textAlign: 'center', marginTop: 40 }}>No hay subastas activas.</Text>}
       />
     </View>
   )
@@ -130,7 +132,7 @@ export default function SubastasScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0F1C',
+    backgroundColor: COLORS.color0A0F1C,
   },
   image: {
     width: 100,

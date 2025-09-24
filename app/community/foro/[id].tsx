@@ -5,6 +5,8 @@ import { useLocalSearchParams, router } from 'expo-router'
 import { supabase } from '@/lib/supabase'
 import useUser from '@/hooks/useUser'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { COLORS } from '../../../constants/GlobalStyles';
+
 
 export default function PostDetalleScreen() {
   const { id } = useLocalSearchParams()
@@ -159,9 +161,9 @@ export default function PostDetalleScreen() {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header elevated mode="center-aligned" style={{ backgroundColor: '#0A0F1C' }}>
+      <Appbar.Header elevated mode="center-aligned" style={{ backgroundColor: COLORS.color0A0F1C }}>
         <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title="Post" titleStyle={{ color: 'white' }} />
+        <Appbar.Content title="Post" titleStyle={{ color: COLORS.white }} />
       </Appbar.Header>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
@@ -175,22 +177,22 @@ export default function PostDetalleScreen() {
         <View style={{ flexDirection: 'row', gap: 16, marginVertical: 16 }}>
           <TouchableOpacity
             onPress={() => votar(1)}
-            style={[styles.votoBtn, miVoto === 1 && { backgroundColor: '#004D80' }]}
+            style={[styles.votoBtn, miVoto === 1 && { backgroundColor: COLORS.color004D80 }]}
           >
             <MaterialCommunityIcons
               name={miVoto === 1 ? 'thumb-up' : 'thumb-up-outline'}
-              color="#00B0FF"
+              color={COLORS.color00B0FF}
               size={20}
             />
             <Text style={styles.votoText}>{votos.likes}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => votar(-1)}
-            style={[styles.votoBtn, miVoto === -1 && { backgroundColor: '#5F1C1C' }]}
+            style={[styles.votoBtn, miVoto === -1 && { backgroundColor: COLORS.color5F1C1C }]}
           >
             <MaterialCommunityIcons
               name={miVoto === -1 ? 'thumb-down' : 'thumb-down-outline'}
-              color="#D32F2F"
+              color={COLORS.colorD32F2F}
               size={20}
             />
             <Text style={styles.votoText}>{votos.dislikes}</Text>
@@ -200,18 +202,18 @@ export default function PostDetalleScreen() {
         <Divider style={{ marginVertical: 24 }} />
         <Text style={styles.subtitulo}>Comentarios</Text>
 
-        {comentarios.length === 0 && <Text style={{ color: '#ccc' }}>No hay comentarios aún.</Text>}
+        {comentarios.length === 0 && <Text style={{ color: COLORS.colorCCC }}>No hay comentarios aún.</Text>}
 
         {comentarios.map((c) => (
           <View key={c.id} style={{ marginBottom: 20 }}>
-            <Text style={{ color: '#00B0FF', fontWeight: 'bold' }}>{c.users?.username || 'Usuario'}:</Text>
+            <Text style={{ color: COLORS.color00B0FF, fontWeight: 'bold' }}>{c.users?.username || 'Usuario'}:</Text>
             {editandoComentario[c.id] ? (
               <>
                 <TextInput
                   value={textoEditado[c.id] ?? c.contenido}
                   onChangeText={(text) => setTextoEditado((prev) => ({ ...prev, [c.id]: text }))}
-                  style={{ backgroundColor: '#1C1C2E', color: 'white' }}
-                  textColor="white"
+                  style={{ backgroundColor: COLORS.color1C1C2E, color: COLORS.white }}
+                  textColor={COLORS.white}
                 />
                 <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
                   <Button onPress={() => editarComentario(c.id)} compact>Guardar</Button>
@@ -219,9 +221,9 @@ export default function PostDetalleScreen() {
                 </View>
               </>
             ) : (
-              <Text style={{ color: 'white' }}>{c.contenido}</Text>
+              <Text style={{ color: COLORS.white }}>{c.contenido}</Text>
             )}
-            <Text style={{ color: '#777', fontSize: 12 }}>{new Date(c.created_at).toLocaleString()}</Text>
+            <Text style={{ color: COLORS.color777, fontSize: 12 }}>{new Date(c.created_at).toLocaleString()}</Text>
             <View style={{ flexDirection: 'row', marginTop: 6, gap: 8 }}>
               <Button onPress={() => setMostrarRespuesta((prev) => ({ ...prev, [c.id]: !prev[c.id] }))} compact>
                 Responder
@@ -240,19 +242,19 @@ export default function PostDetalleScreen() {
                   value={textoRespuesta[c.id] || ''}
                   onChangeText={(text) => setTextoRespuesta((prev) => ({ ...prev, [c.id]: text }))}
                   multiline
-                  style={{ backgroundColor: '#1C1C2E', marginBottom: 8 }}
-                  textColor="white"
+                  style={{ backgroundColor: COLORS.color1C1C2E, marginBottom: 8 }}
+                  textColor={COLORS.white}
                 />
-                <Button mode="contained" onPress={() => enviarRespuesta(c.id)} buttonColor="#00B0FF">
+                <Button mode="contained" onPress={() => enviarRespuesta(c.id)} buttonColor={COLORS.color00B0FF}>
                   Enviar respuesta
                 </Button>
               </View>
             )}
             {respuestas[c.id]?.map((r) => (
-              <View key={r.id} style={{ marginTop: 12, marginLeft: 12, borderLeftWidth: 2, borderColor: '#444', paddingLeft: 8 }}>
-                <Text style={{ color: '#00B0FF' }}>{r.users?.username || 'Usuario'}:</Text>
-                <Text style={{ color: 'white' }}>{r.contenido}</Text>
-                <Text style={{ color: '#777', fontSize: 12 }}>{new Date(r.created_at).toLocaleString()}</Text>
+              <View key={r.id} style={{ marginTop: 12, marginLeft: 12, borderLeftWidth: 2, borderColor: COLORS.color444, paddingLeft: 8 }}>
+                <Text style={{ color: COLORS.color00B0FF }}>{r.users?.username || 'Usuario'}:</Text>
+                <Text style={{ color: COLORS.white }}>{r.contenido}</Text>
+                <Text style={{ color: COLORS.color777, fontSize: 12 }}>{new Date(r.created_at).toLocaleString()}</Text>
               </View>
             ))}
           </View>
@@ -265,10 +267,10 @@ export default function PostDetalleScreen() {
               value={nuevoComentario}
               onChangeText={setNuevoComentario}
               multiline
-              style={{ backgroundColor: '#1C1C2E', marginBottom: 12, color: 'white' }}
-              textColor="white"
+              style={{ backgroundColor: COLORS.color1C1C2E, marginBottom: 12, color: COLORS.white }}
+              textColor={COLORS.white}
             />
-            <Button mode="contained" onPress={enviarComentario} loading={enviando} disabled={enviando} buttonColor="#00B0FF">
+            <Button mode="contained" onPress={enviarComentario} loading={enviando} disabled={enviando} buttonColor={COLORS.color00B0FF}>
               {enviando ? 'Enviando...' : 'Enviar'}
             </Button>
           </View>
@@ -281,16 +283,16 @@ export default function PostDetalleScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0F1C',
+    backgroundColor: COLORS.color0A0F1C,
   },
   titulo: {
-    color: 'white',
+    color: COLORS.white,
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 4,
   },
   contenido: {
-    color: '#ccc',
+    color: COLORS.colorCCC,
     fontSize: 16,
     marginTop: 12,
   },
@@ -302,24 +304,24 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   fecha: {
-    color: '#777',
+    color: COLORS.color777,
     fontSize: 12,
   },
   subtitulo: {
     fontSize: 18,
-    color: 'white',
+    color: COLORS.white,
     marginBottom: 12,
   },
   votoBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1C1C2E',
+    backgroundColor: COLORS.color1C1C2E,
     borderRadius: 8,
     paddingVertical: 6,
     paddingHorizontal: 12,
   },
   votoText: {
-    color: 'white',
+    color: COLORS.white,
     marginLeft: 6,
   },
 })

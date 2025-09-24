@@ -3,6 +3,8 @@ import { useLocalSearchParams } from 'expo-router'
 import { View, Image, ScrollView, TouchableOpacity } from 'react-native'
 import { Text, Button, ActivityIndicator } from 'react-native-paper'
 import ZoomCardDialog from '@/components/ZoomCardDialog'
+import { COLORS } from '../../constants/GlobalStyles';
+
 
 
 interface DeckCard {
@@ -138,7 +140,7 @@ export default function DeckListScreen() {
             />
             <Text
               style={{
-                color: 'white',
+                color: COLORS.white,
                 fontSize: 12,
                 textAlign: 'center',
               }}
@@ -153,43 +155,43 @@ export default function DeckListScreen() {
 
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0A0F1C', padding: 16 }}>
+    <View style={{ flex: 1, backgroundColor: COLORS.color0A0F1C, padding: 16 }}>
       {loading ? (
-        <ActivityIndicator animating={true} color="#00B0FF" />
+        <ActivityIndicator animating={true} color={COLORS.color00B0FF} />
       ) : decks.length > 0 ? (
         (() => {
           const { usd, mxn } = getDeckTotalPrice()
           return (
             <>
-              <Text variant="titleLarge" style={{ color: 'white', marginBottom: 4 }}>
+              <Text variant="titleLarge" style={{ color: COLORS.white, marginBottom: 4 }}>
                 {decks[0].deckType.name} - Top Decks
               </Text>
-              <Text style={{ color: '#ccc', marginBottom: 12 }}>
+              <Text style={{ color: COLORS.colorCCC, marginBottom: 12 }}>
                 {decks[0].event.name} | Autor: {decks[0].author} | Puesto: {getPlacementLabel(decks[0].tournamentPlacement)}
               </Text>
 
-              <Text style={{ color: '#00B0FF', marginBottom: 12 }}>
+              <Text style={{ color: COLORS.color00B0FF, marginBottom: 12 }}>
                 💰 Costo estimado: ${usd.toFixed(2)} USD / ${mxn.toFixed(2)} MXN
               </Text>
 
               <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 16 }}>
                 <Button
                   mode={section === 'Main' ? 'contained' : 'outlined'}
-                  buttonColor="#42A5F5"
+                  buttonColor={COLORS.color42A5F5}
                   onPress={() => setSection('Main')}
                 >
                   Main
                 </Button>
                 <Button
                   mode={section === 'Extra' ? 'contained' : 'outlined'}
-                  buttonColor="#AB47BC"
+                  buttonColor={COLORS.colorAB47BC}
                   onPress={() => setSection('Extra')}
                 >
                   Extra
                 </Button>
                 <Button
                   mode={section === 'Side' ? 'contained' : 'outlined'}
-                  buttonColor="#66BB6A"
+                  buttonColor={COLORS.color66BB6A}
                   onPress={() => setSection('Side')}
                 >
                   Side
@@ -210,7 +212,7 @@ export default function DeckListScreen() {
           )
         })()
       ) : (
-        <Text style={{ color: 'white' }}>No se encontraron decks.</Text>
+        <Text style={{ color: COLORS.white }}>No se encontraron decks.</Text>
       )}
     </View>
   )

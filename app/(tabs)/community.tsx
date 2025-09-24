@@ -3,6 +3,8 @@ import { Text } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { COLORS } from '../../constants/GlobalStyles';
+
 
 const communityItems = [
     {
@@ -86,13 +88,13 @@ export default function CommunityScreen() {
                             marginBottom: 8,
                         }}
                     >
-                        <Text style={{ color: 'white', fontSize: 12 }}>{item.category}</Text>
+                        <Text style={{ color: COLORS.white, fontSize: 12 }}>{item.category}</Text>
                     </View>
 
-                    <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>
+                    <Text style={{ color: COLORS.white, fontSize: 18, fontWeight: 'bold' }}>
                         {item.title}
                     </Text>
-                    <Text style={{ color: '#ccc', fontSize: 14, marginTop: 4 }}>
+                    <Text style={{ color: COLORS.colorCCC, fontSize: 14, marginTop: 4 }}>
                         {item.description}
                     </Text>
 
@@ -102,7 +104,7 @@ export default function CommunityScreen() {
     );
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0F1C', padding: 16 }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.color0A0F1C, padding: 16 }}>
             <FlatList
                 data={communityItems}
                 keyExtractor={(item) => item.id}

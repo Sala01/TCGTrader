@@ -2,6 +2,8 @@ import { IconButton, Menu } from 'react-native-paper'
 import { useState } from 'react'
 import { View } from 'react-native'
 import { router } from 'expo-router'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 export default function AddInventoryButton() {
   const [visible, setVisible] = useState(false)
@@ -15,7 +17,7 @@ export default function AddInventoryButton() {
           <IconButton
             icon="plus-circle"
             size={32}
-            iconColor="#00B0FF"
+            iconColor={COLORS.color00B0FF}
             onPress={() => setVisible(true)}
           />
         }

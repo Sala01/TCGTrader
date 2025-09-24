@@ -1,4 +1,6 @@
 import { View, Image, Text } from 'react-native'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 export default function DeckGrid({ cards }: { cards: any[] }) {
   return (
@@ -18,7 +20,7 @@ export default function DeckGrid({ cards }: { cards: any[] }) {
             paddingHorizontal: 4,
             borderRadius: 4
           }}>
-            <Text style={{ color: 'white', fontSize: 12 }}>x{card.amount}</Text>
+            <Text style={{ color: COLORS.white, fontSize: 12 }}>x{card.amount}</Text>
           </View>
         </View>
       ))}

@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState } from 'react'
 import { Snackbar, Text } from 'react-native-paper'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 type SnackbarContextType = {
   showSnackbar: (text: string, color?: string) => void
@@ -18,9 +20,9 @@ export const useSnackbar = () => {
 export const SnackbarProvider = ({ children }: { children: React.ReactNode }) => {
   const [visible, setVisible] = useState(false)
   const [text, setText] = useState('')
-  const [color, setColor] = useState('#D32F2F')
+  const [color, setColor] = useState(COLORS.colorD32F2F)
 
-  const showSnackbar = (msg: string, color: string = '#D32F2F') => {
+  const showSnackbar = (msg: string, color: string = COLORS.colorD32F2F) => {
     setText(msg)
     setColor(color)
     setVisible(true)
@@ -42,7 +44,7 @@ export const SnackbarProvider = ({ children }: { children: React.ReactNode }) =>
           borderRadius: 8,
         }}
       >
-        <Text style={{ color: 'white', textAlign: 'center' }}>{text}</Text>
+        <Text style={{ color: COLORS.white, textAlign: 'center' }}>{text}</Text>
       </Snackbar>
     </SnackbarContext.Provider>
   )

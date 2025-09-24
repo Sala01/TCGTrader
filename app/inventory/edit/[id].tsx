@@ -11,6 +11,8 @@ import { decode as atob } from 'base-64'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useSnackbar } from '@/providers/SnackbarProvider'
 import * as ImageManipulator from 'expo-image-manipulator'
+import { COLORS } from '../../../constants/GlobalStyles';
+
 
 const estados = ['NM', 'LP', 'MP', 'HP', 'D']
 
@@ -106,7 +108,7 @@ export default function EditInventoryScreen() {
       .eq('id', id)
 
     if (!error) {
-      showSnackbar('Carta actualizada correctamente', '#00C853')
+      showSnackbar('Carta actualizada correctamente', COLORS.color00C853)
       router.back()
     } else {
       showSnackbar('Error al actualizar carta')
@@ -116,14 +118,14 @@ export default function EditInventoryScreen() {
   if (!item) return null
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0F1C', padding: 16 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.color0A0F1C, padding: 16 }}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View style={{ flexDirection: 'row', marginVertical: 12, backgroundColor: '#1C1C2E', borderRadius: 8, padding: 12 }}>
+        <View style={{ flexDirection: 'row', marginVertical: 12, backgroundColor: COLORS.color1C1C2E, borderRadius: 8, padding: 12 }}>
           <Image source={{ uri: item.cards.image_url }} style={{ width: 100, height: 140, borderRadius: 8, marginRight: 12 }} />
           <View style={{ flex: 1 }}>
-            <Text style={{ color: 'white', fontWeight: 'bold' }}>{item.cards.name}</Text>
-            <Text style={{ color: '#aaa' }}>{item.cards.number}</Text>
-            <Text style={{ color: '#00B0FF' }}>{item.cards.rarity}</Text>
+            <Text style={{ color: COLORS.white, fontWeight: 'bold' }}>{item.cards.name}</Text>
+            <Text style={{ color: COLORS.colorAAA }}>{item.cards.number}</Text>
+            <Text style={{ color: COLORS.color00B0FF }}>{item.cards.rarity}</Text>
           </View>
         </View>
 
@@ -159,7 +161,7 @@ export default function EditInventoryScreen() {
 
         {image && <Image source={{ uri: image.uri }} style={{ height: 160, borderRadius: 8, marginBottom: 12 }} />}
 
-        <Button mode="contained" onPress={handleUpdate} buttonColor="#00B0FF">
+        <Button mode="contained" onPress={handleUpdate} buttonColor={COLORS.color00B0FF}>
           Guardar cambios
         </Button>
       </KeyboardAvoidingView>

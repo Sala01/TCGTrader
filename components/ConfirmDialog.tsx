@@ -1,6 +1,8 @@
 // components/ConfirmDialog.tsx
 import React from 'react'
 import { Portal, Dialog, Button, Paragraph } from 'react-native-paper'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 interface ConfirmDialogProps {
   visible: boolean
@@ -26,7 +28,7 @@ export default function ConfirmDialog({
         </Dialog.Content>
         <Dialog.Actions>
           <Button onPress={onCancel}>Cancelar</Button>
-          <Button onPress={onConfirm} textColor="#D32F2F">Eliminar</Button>
+          <Button onPress={onConfirm} textColor={COLORS.colorD32F2F}>Eliminar</Button>
         </Dialog.Actions>
       </Dialog>
     </Portal>

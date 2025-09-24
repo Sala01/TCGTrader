@@ -1,6 +1,8 @@
 // components/ProductoRelacionado.tsx
 import { View, Image, StyleSheet } from 'react-native'
 import { Text } from 'react-native-paper'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 export default function ProductoRelacionado({ nombre, precio, foto_url }: { nombre: string; precio: string; foto_url: string }) {
   return (
@@ -18,7 +20,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1C1C2E',
+    backgroundColor: COLORS.color1C1C2E,
     padding: 10,
     margin: 10,
     borderRadius: 12,
@@ -30,12 +32,12 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   title: {
-    color: 'white',
+    color: COLORS.white,
     fontWeight: 'bold',
     fontSize: 14,
   },
   price: {
-    color: '#00B0FF',
+    color: COLORS.color00B0FF,
     marginTop: 4,
   },
 })

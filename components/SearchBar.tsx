@@ -9,6 +9,8 @@ import {
 } from 'react-native-paper'
 import { router } from 'expo-router'
 import { supabase } from '@/lib/supabase'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 interface CardItem {
   id: number
@@ -75,7 +77,7 @@ export default function SearchBar() {
         returnKeyType="search"
         textColor="#4FD2FF"
         outlineColor="#00AFFF"
-        activeOutlineColor="#00C8FF"
+        activeOutlineColor={COLORS.color00C8FF}
         onSubmitEditing={() => {
           if (query.trim().length > 0) {
             router.push({ pathname: '/search', params: { query } })
@@ -104,18 +106,18 @@ export default function SearchBar() {
                   Keyboard.dismiss()
                 }
               }}
-              color="#00FFAA"
+              color={COLORS.color00FFAA}
             />
           </>
         }
         style={{
           borderRadius: 70,
-          backgroundColor: '#1C1C2E',
+          backgroundColor: COLORS.color1C1C2E,
         }}
         theme={{
           colors: {
-            placeholder: '#7ED8FF',
-            background: '#1C1C2E',
+            placeholder: COLORS.color7ED8FF,
+            background: COLORS.color1C1C2E,
           },
         }}
       />
@@ -125,28 +127,28 @@ export default function SearchBar() {
         <Surface
           style={{
             marginTop: 8,
-            backgroundColor: '#1C1C2E',
+            backgroundColor: COLORS.color1C1C2E,
             borderRadius: 12,
             elevation: 6,
             overflow: 'hidden',
           }}
         >
           {loading ? (
-            <ActivityIndicator style={{ padding: 16 }} color="#00B0FF" />
+            <ActivityIndicator style={{ padding: 16 }} color={COLORS.color00B0FF} />
           ) : (
             <FlatList
               data={results}
               keyExtractor={(item) => item.id.toString()}
-              ItemSeparatorComponent={() => <Divider style={{ backgroundColor: '#333' }} />}
+              ItemSeparatorComponent={() => <Divider style={{ backgroundColor: COLORS.color333 }} />}
               renderItem={({ item }) => (
                 <TouchableOpacity onPress={() => onSelect(item)}>
                   <List.Item
                     title={item.name}
                     description={`${item.number} • ${item.rarity}`}
-                    titleStyle={{ color: '#fff', fontWeight: '600' }}
-                    descriptionStyle={{ color: '#888' }}
+                    titleStyle={{ color: COLORS.colorFFF, fontWeight: '600' }}
+                    descriptionStyle={{ color: COLORS.color888 }}
                     left={(props) => (
-                      <List.Icon {...props} icon="cards" color="#00B0FF" />
+                      <List.Icon {...props} icon="cards" color={COLORS.color00B0FF} />
                     )}
                   />
                 </TouchableOpacity>

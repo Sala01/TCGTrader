@@ -10,6 +10,8 @@ import AuthGuard from '@/components/AuthGuard'
 import useUser from '@/hooks/useUser'
 import { useSnackbar } from '@/providers/SnackbarProvider'
 import * as ImageManipulator from 'expo-image-manipulator'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 export default function EditProfileScreen() {
   const { user } = useUser()
@@ -159,7 +161,7 @@ export default function EditProfileScreen() {
     return (
       <AuthGuard>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator color="#00B0FF" />
+          <ActivityIndicator color={COLORS.color00B0FF} />
         </View>
       </AuthGuard>
     )
@@ -167,10 +169,10 @@ export default function EditProfileScreen() {
 
   return (
     <AuthGuard>
-      <SafeAreaView style={{ flex: 1, padding: 16, backgroundColor: '#0A0F1C' }}>
+      <SafeAreaView style={{ flex: 1, padding: 16, backgroundColor: COLORS.color0A0F1C }}>
         <TouchableOpacity onPress={handleAvatarChange}>
           <Image source={{ uri: avatarUrl }} style={{ width: 100, height: 100, borderRadius: 50, alignSelf: 'center', marginBottom: 8 }} />
-          <Text style={{ color: '#00B0FF', textAlign: 'center', marginBottom: 16 }}>Cambiar foto</Text>
+          <Text style={{ color: COLORS.color00B0FF, textAlign: 'center', marginBottom: 16 }}>Cambiar foto</Text>
         </TouchableOpacity>
 
         <TextInput
@@ -178,7 +180,7 @@ export default function EditProfileScreen() {
           value={username}
           onChangeText={setUsername}
           mode="outlined"
-          style={{ backgroundColor: '#BFCED6', marginBottom: 12 }}
+          style={{ backgroundColor: COLORS.colorBFCED6, marginBottom: 12 }}
         />
 
         <Menu
@@ -235,7 +237,7 @@ export default function EditProfileScreen() {
           onPress={handleSave}
           loading={saving}
           disabled={saving}
-          buttonColor="#00B0FF"
+          buttonColor={COLORS.color00B0FF}
         >
           Guardar cambios
         </Button>

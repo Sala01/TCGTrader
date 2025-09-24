@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { FlatList, TouchableOpacity, View } from 'react-native'
 import { TextInput, List, Divider } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 interface Card {
     id: number
@@ -76,10 +78,10 @@ export default function SearchBarInline({
                             <List.Item
                                 title={item.name}
                                 description={`${item.number} • ${item.rarity}`}
-                                titleStyle={{ color: 'white', fontWeight: 'bold' }}           // 👈 texto blanco
-                                descriptionStyle={{ color: '#ccc' }}                          // 👈 descripción clara
+                                titleStyle={{ color: COLORS.white, fontWeight: 'bold' }}           // 👈 texto blanco
+                                descriptionStyle={{ color: COLORS.colorCCC }}                          // 👈 descripción clara
                                 left={(props) => (
-                                    <List.Icon {...props} icon="cards" color="#00B0FF" />
+                                    <List.Icon {...props} icon="cards" color={COLORS.color00B0FF} />
                                 )}
                             />
                         </TouchableOpacity>

@@ -9,6 +9,8 @@ import * as FileSystem from 'expo-file-system'
 import { decode as atob } from 'base-64'
 import { useSnackbar } from '@/providers/SnackbarProvider'
 import * as ImageManipulator from 'expo-image-manipulator'
+import { COLORS } from '../../constants/GlobalStyles';
+
 
 
 const estados = ['NM', 'LP', 'MP', 'HP', 'D']
@@ -125,7 +127,7 @@ export default function AddBulkInventoryScreen() {
         if (error) throw error
       }
 
-      showSnackbar('Cartas subidas exitosamente', '#00B0FF')
+      showSnackbar('Cartas subidas exitosamente', COLORS.color00B0FF)
       setCartas([])
     } catch (e) {
       console.error('Upload Error', e)
@@ -138,7 +140,7 @@ export default function AddBulkInventoryScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={{ flex: 1, backgroundColor: '#0A0F1C', padding: 16 }}
+      style={{ flex: 1, backgroundColor: COLORS.color0A0F1C, padding: 16 }}
     >
       <FlatList
         ListHeaderComponent={
@@ -146,12 +148,12 @@ export default function AddBulkInventoryScreen() {
             <SearchBarInline onSelect={(card) => setSelectedCard(card)} resetTrigger={resetKey} />
 
             {selectedCard && (
-              <View style={{ flexDirection: 'row', marginVertical: 12, backgroundColor: '#1C1C2E', borderRadius: 8, padding: 12 }}>
+              <View style={{ flexDirection: 'row', marginVertical: 12, backgroundColor: COLORS.color1C1C2E, borderRadius: 8, padding: 12 }}>
                 <Image source={{ uri: selectedCard.image_url }} style={{ width: 100, height: 140, borderRadius: 8, marginRight: 12 }} />
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: 'white', fontWeight: 'bold' }}>{selectedCard.name}</Text>
-                  <Text style={{ color: '#aaa' }}>{selectedCard.number}</Text>
-                  <Text style={{ color: '#00B0FF' }}>{selectedCard.rarity}</Text>
+                  <Text style={{ color: COLORS.white, fontWeight: 'bold' }}>{selectedCard.name}</Text>
+                  <Text style={{ color: COLORS.colorAAA }}>{selectedCard.number}</Text>
+                  <Text style={{ color: COLORS.color00B0FF }}>{selectedCard.rarity}</Text>
                 </View>
               </View>
             )}
@@ -192,25 +194,25 @@ export default function AddBulkInventoryScreen() {
             <Button
               mode="contained"
               onPress={handleAddToList}
-              buttonColor="#00B0FF"
+              buttonColor={COLORS.color00B0FF}
               disabled={!selectedCard || !image || !precio}
               style={{ marginBottom: 24 }}
             >
               Agregar al lote
             </Button>
 
-            <Subheading style={{ color: 'white', marginBottom: 8 }}>Cartas agregadas</Subheading>
+            <Subheading style={{ color: COLORS.white, marginBottom: 8 }}>Cartas agregadas</Subheading>
           </>
         }
 
         data={cartas}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item, index }) => (
-          <Card style={{ marginBottom: 12, backgroundColor: '#1C1C2E' }}>
+          <Card style={{ marginBottom: 12, backgroundColor: COLORS.color1C1C2E }}>
             <Card.Content style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: 'white', fontWeight: 'bold' }}>{item.name}</Text>
-                <Text style={{ color: '#aaa' }}>{item.estado} - ${item.precio} - x{item.cantidad}</Text>
+                <Text style={{ color: COLORS.white, fontWeight: 'bold' }}>{item.name}</Text>
+                <Text style={{ color: COLORS.colorAAA }}>{item.estado} - ${item.precio} - x{item.cantidad}</Text>
               </View>
               <IconButton icon="delete" onPress={() => setCartas((prev) => prev.filter((_, i) => i !== index))} />
             </Card.Content>
@@ -224,7 +226,7 @@ export default function AddBulkInventoryScreen() {
               onPress={handleUploadAll}
               loading={subiendo}
               disabled={subiendo}
-              buttonColor="#00B0FF"
+              buttonColor={COLORS.color00B0FF}
               style={{ marginTop: 16 }}
             >
               Subir todas

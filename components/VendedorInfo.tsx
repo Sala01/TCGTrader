@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { View, StyleSheet } from 'react-native'
 import { Avatar, Text } from 'react-native-paper'
 import { getUbicacion } from '@/lib/getUbicacion'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 type Props = {
   username: string
@@ -42,7 +44,7 @@ export default function VendedorInfo({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: '#BFCED6',
+    backgroundColor: COLORS.colorBFCED6,
     padding: 12,
     borderRadius: 10,
     marginBottom: 16,
@@ -54,6 +56,6 @@ const styles = StyleSheet.create({
   username: {
     fontWeight: 'bold',
     fontSize: 16,
-    color: '#1C1C1C',
+    color: COLORS.color1C1C1C,
   },
 })

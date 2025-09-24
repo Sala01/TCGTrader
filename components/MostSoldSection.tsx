@@ -4,6 +4,8 @@ import { Text, Card } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
 import { router } from 'expo-router'
 import { useFocusEffect } from '@react-navigation/native'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 export default function MostSoldSection() {
   const [cards, setCards] = useState<any[]>([])
@@ -72,7 +74,7 @@ const styles = StyleSheet.create({
   card: {
     width: 160,
     marginRight: 12,
-    backgroundColor: '#1C1C2E',
+    backgroundColor: COLORS.color1C1C2E,
     borderRadius: 16,
     overflow: 'hidden',
   },
@@ -81,18 +83,18 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   name: {
-    color: '#FFFFFF',
+    color: COLORS.colorFFFFFF,
     fontWeight: '600',
     fontSize: 14,
     marginTop: 8,
   },
   soldCount: {
-    color: '#FFB300',
+    color: COLORS.colorFFB300,
     fontSize: 11,
     marginTop: 2,
   },
   price: {
-    color: '#00C8FF',
+    color: COLORS.color00C8FF,
     fontWeight: 'bold',
     fontSize: 13,
     marginTop: 4,

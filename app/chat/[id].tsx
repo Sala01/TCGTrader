@@ -6,6 +6,8 @@ import { supabase } from '@/lib/supabase'
 import { useLocalSearchParams, router } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { sendPushNotification } from '@/lib/sendPush'
+import { COLORS } from '../../constants/GlobalStyles';
+
 
 function ProductoRelacionado({ nombre, precio, foto_url, onConcretar }: { nombre: string; precio: string; foto_url: string; onConcretar?: () => void }) {
   return (
@@ -171,7 +173,7 @@ export default function ChatDetailScreen() {
       <View
         style={{
           alignSelf: isMe ? 'flex-end' : 'flex-start',
-          backgroundColor: isMe ? '#00B0FF' : '#1C1C2E',
+          backgroundColor: isMe ? COLORS.color00B0FF : COLORS.color1C1C2E,
           padding: 10,
           marginVertical: 4,
           marginHorizontal: 8,
@@ -179,33 +181,33 @@ export default function ChatDetailScreen() {
           maxWidth: '80%',
         }}
       >
-        <Text style={{ color: 'white' }}>{item.content}</Text>
+        <Text style={{ color: COLORS.white }}>{item.content}</Text>
       </View>
     )
   }
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0F1C', justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator animating color="#00B0FF" />
+      <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.color0A0F1C, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator animating color={COLORS.color00B0FF} />
       </SafeAreaView>
     )
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0F1C' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12, backgroundColor: '#1C1C2E' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.color0A0F1C }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12, backgroundColor: COLORS.color1C1C2E }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           {otherUser?.avatar_url ? (
             <Image source={{ uri: otherUser.avatar_url }} style={{ width: 40, height: 40, borderRadius: 20, marginRight: 12 }} />
           ) : (
-            <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#333', marginRight: 12 }} />
+            <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.color333, marginRight: 12 }} />
           )}
-          <Text style={{ color: 'white', fontSize: 16 }}>{otherUser?.username ?? 'Usuario'}</Text>
+          <Text style={{ color: COLORS.white, fontSize: 16 }}>{otherUser?.username ?? 'Usuario'}</Text>
         </View>
         <IconButton
           icon="account"
-          iconColor="#00B0FF"
+          iconColor={COLORS.color00B0FF}
           onPress={() =>
             router.push({ pathname: '/vendedor/[id]', params: { id: otherUser.id } })
           }
@@ -236,25 +238,25 @@ export default function ChatDetailScreen() {
           flexDirection: 'row',
           alignItems: 'center',
           padding: 8,
-          backgroundColor: '#1C1C2E',
+          backgroundColor: COLORS.color1C1C2E,
         }}
       >
         <TextInput
           value={input}
           onChangeText={setInput}
           placeholder="Escribe un mensaje..."
-          placeholderTextColor="#888"
+          placeholderTextColor={COLORS.color888}
           style={{
             flex: 1,
-            color: 'white',
-            backgroundColor: '#2A2A3F',
+            color: COLORS.white,
+            backgroundColor: COLORS.color2A2A3F,
             borderRadius: 20,
             paddingHorizontal: 12,
             paddingVertical: 8,
             marginRight: 8,
           }}
         />
-        <IconButton icon="send" iconColor="#00B0FF" onPress={sendMessage} />
+        <IconButton icon="send" iconColor={COLORS.color00B0FF} onPress={sendMessage} />
       </KeyboardAvoidingView>
     </SafeAreaView>
   )
@@ -264,7 +266,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1C1C2E',
+    backgroundColor: COLORS.color1C1C2E,
     padding: 10,
     margin: 10,
     borderRadius: 12,
@@ -276,12 +278,12 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   title: {
-    color: 'white',
+    color: COLORS.white,
     fontWeight: 'bold',
     fontSize: 14,
   },
   price: {
-    color: '#00B0FF',
+    color: COLORS.color00B0FF,
     marginTop: 4,
   },
   button: {

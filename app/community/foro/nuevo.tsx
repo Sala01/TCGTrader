@@ -9,6 +9,8 @@ import { supabase } from '@/lib/supabase'
 import useUser from '@/hooks/useUser'
 import { router } from 'expo-router'
 import { useSnackbar } from '@/providers/SnackbarProvider'
+import { COLORS } from '../../../constants/GlobalStyles';
+
 
 
 const categorias = ['General', 'Estrategia', 'Cartas', 'Torneos']
@@ -21,7 +23,7 @@ export default function NuevoPostScreen() {
   const [menuVisible, setMenuVisible] = useState(false)
   const [image, setImage] = useState<any>(null)
   const [loading, setLoading] = useState(false)
-  const [snackbar, setSnackbar] = useState({ visible: false, text: '', color: '#D32F2F' })
+  const [snackbar, setSnackbar] = useState({ visible: false, text: '', color: COLORS.colorD32F2F })
   const { showSnackbar } = useSnackbar()
 
 
@@ -79,7 +81,7 @@ export default function NuevoPostScreen() {
       })
 
       if (error) throw error
-      showSnackbar('Post creado exitosamente', '#00B0FF')
+      showSnackbar('Post creado exitosamente', COLORS.color00B0FF)
       setTimeout(() => router.replace('/community/foro'), 1000)
     } catch (e) {
       console.error('Post Error', e)
@@ -90,7 +92,7 @@ export default function NuevoPostScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16, backgroundColor: '#0A0F1C', flexGrow: 1 }}>
+    <ScrollView contentContainerStyle={{ padding: 16, backgroundColor: COLORS.color0A0F1C, flexGrow: 1 }}>
       <TextInput label="Título" value={titulo} onChangeText={setTitulo} style={{ marginBottom: 12 }} />
       <TextInput
         label="Contenido"
@@ -113,7 +115,7 @@ export default function NuevoPostScreen() {
         {image ? 'Cambiar imagen' : 'Seleccionar imagen'}
       </Button>
       {image && <Image source={{ uri: image.uri }} style={{ height: 180, borderRadius: 8, marginBottom: 12 }} />}
-      <Button mode="contained" onPress={handleSubmit} loading={loading} buttonColor="#00B0FF">
+      <Button mode="contained" onPress={handleSubmit} loading={loading} buttonColor={COLORS.color00B0FF}>
         Publicar
       </Button>
     </ScrollView>

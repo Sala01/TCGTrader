@@ -2,6 +2,8 @@ import { Link } from 'expo-router';
 import { openBrowserAsync } from 'expo-web-browser';
 import { type ComponentProps } from 'react';
 import { Platform } from 'react-native';
+import { COLORS } from '../constants/GlobalStyles';
+
 
 type Props = Omit<ComponentProps<typeof Link>, 'href'> & { href: string };
 

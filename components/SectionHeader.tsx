@@ -2,6 +2,8 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 import { Text } from 'react-native-paper'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 interface Props {
   title: string
@@ -27,10 +29,10 @@ const styles = StyleSheet.create({
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: '#444',
+    backgroundColor: COLORS.color444,
   },
   text: {
-    color: '#00B0FF',
+    color: COLORS.color00B0FF,
     fontWeight: 'bold',
     marginHorizontal: 12,
   },

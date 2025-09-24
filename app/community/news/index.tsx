@@ -9,6 +9,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import AuthGuard from '@/components/AuthGuard'
 import useUser from '@/hooks/useUser'
 import { supabase } from '@/lib/supabase'
+import { COLORS } from '../../../constants/GlobalStyles';
+
 
 const PAGE_SIZE = 10
 
@@ -48,11 +50,11 @@ export default function ChatbotScreen() {
   }
 
   const getQuotaColor = () => {
-    if (questionLimit === 0) return '#fff'
+    if (questionLimit === 0) return COLORS.colorFFF
     const ratio = questionsRemain / questionLimit
-    if (ratio <= 0.3) return '#FFB300'
-    if (ratio <= 0.6) return '#00FFAA'
-    return '#FF4444'
+    if (ratio <= 0.3) return COLORS.colorFFB300
+    if (ratio <= 0.6) return COLORS.color00FFAA
+    return COLORS.colorFF4444
   }
 
   const getLimitWarning = () => {
@@ -160,7 +162,7 @@ export default function ChatbotScreen() {
           <Text style={[styles.quota, { color: getQuotaColor() }]}> {questionsRemain} / {questionLimit} </Text>
         </View>
         <View style={styles.headerRowPlan}>
-          <Text style={{ color: '#aaa', fontSize: 12 }}>Nivel: {currentPlan}</Text>
+          <Text style={{ color: COLORS.colorAAA, fontSize: 12 }}>Nivel: {currentPlan}</Text>
         </View>
 
         <View style={{ paddingHorizontal: 20 }}>
@@ -168,7 +170,7 @@ export default function ChatbotScreen() {
             value={question}
             onChangeText={setQuestion}
             placeholder="¿Cuál es tu duda sobre el juego?"
-            placeholderTextColor="#aaa"
+            placeholderTextColor={COLORS.colorAAA}
             style={styles.input}
             multiline
           />
@@ -176,7 +178,7 @@ export default function ChatbotScreen() {
             {loading ? 'Consultando...' : 'Preguntar'}
           </Button>
 
-          <Text style={{ color: '#FFB300', marginTop: 16 }}>{getLimitWarning()}</Text>
+          <Text style={{ color: COLORS.colorFFB300, marginTop: 16 }}>{getLimitWarning()}</Text>
 
           <Button mode="outlined" onPress={() => setModalVisible(true)} style={styles.subscribeButton}>
             Suscribirse para más preguntas
@@ -243,7 +245,7 @@ export default function ChatbotScreen() {
                 value={correctionText}
                 onChangeText={setCorrectionText}
                 placeholder="Escribe tu corrección..."
-                placeholderTextColor="#aaa"
+                placeholderTextColor={COLORS.colorAAA}
                 style={styles.input}
                 multiline
               />
@@ -262,7 +264,7 @@ export default function ChatbotScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0F1C' },
+  container: { flex: 1, backgroundColor: COLORS.color0A0F1C },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -276,38 +278,38 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 10,
   },
-  title: { color: '#fff', fontWeight: 'bold', fontSize: 22 },
+  title: { color: COLORS.colorFFF, fontWeight: 'bold', fontSize: 22 },
   quota: { fontWeight: 'bold', fontSize: 14 },
   input: {
-    backgroundColor: '#1C1C2E',
-    color: 'white',
+    backgroundColor: COLORS.color1C1C2E,
+    color: COLORS.white,
     padding: 12,
     borderRadius: 8,
     minHeight: 80,
     textAlignVertical: 'top',
   },
-  button: { marginTop: 20, backgroundColor: '#00B0FF' },
-  subscribeButton: { marginTop: 10, borderColor: '#FFB300' },
-  answerCard: { marginTop: 20, backgroundColor: '#1C1C2E' },
-  answerText: { color: 'white', marginTop: 8 },
-  historyQuestion: { color: '#FFB300', fontWeight: 'bold' },
-  correctionLabel: { color: '#00B0FF', padding: 8, fontSize: 12, textDecorationLine: 'underline' },
+  button: { marginTop: 20, backgroundColor: COLORS.color00B0FF },
+  subscribeButton: { marginTop: 10, borderColor: COLORS.colorFFB300 },
+  answerCard: { marginTop: 20, backgroundColor: COLORS.color1C1C2E },
+  answerText: { color: COLORS.white, marginTop: 8 },
+  historyQuestion: { color: COLORS.colorFFB300, fontWeight: 'bold' },
+  correctionLabel: { color: COLORS.color00B0FF, padding: 8, fontSize: 12, textDecorationLine: 'underline' },
   modalBackground: {
     flex: 1,
     justifyContent: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
   modalContainer: {
-    backgroundColor: '#1C1C2E',
+    backgroundColor: COLORS.color1C1C2E,
     padding: 20,
     borderRadius: 12,
     width: '85%',
     alignSelf: 'center',
   },
-  modalTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-  modalText: { color: '#ccc', fontSize: 14, lineHeight: 20, marginBottom: 10 },
+  modalTitle: { color: COLORS.colorFFF, fontSize: 18, fontWeight: 'bold' },
+  modalText: { color: COLORS.colorCCC, fontSize: 14, lineHeight: 20, marginBottom: 10 },
   modalClose: {
-    color: '#FFB300',
+    color: COLORS.colorFFB300,
     marginTop: 20,
     textAlign: 'center',
     fontWeight: 'bold',

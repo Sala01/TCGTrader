@@ -4,6 +4,8 @@ import { useLocalSearchParams, router } from 'expo-router'
 import { FlatList, View, Image, TextInput, Keyboard } from 'react-native'
 import { Text, Card, ActivityIndicator, Divider } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
+import { COLORS } from '../../constants/GlobalStyles';
+
 
 interface CardItem {
     id: number
@@ -98,19 +100,19 @@ export default function SearchScreen() {
     }
 
     return (
-        <View style={{ flex: 1, backgroundColor: '#0A0F1C', padding: 12 }}>
+        <View style={{ flex: 1, backgroundColor: COLORS.color0A0F1C, padding: 12 }}>
             <TextInput
                 value={query as string}
                 editable={false}
                 placeholder="Buscar cartas"
-                placeholderTextColor="gray"
+                placeholderTextColor={COLORS.gray}
                 returnKeyType="search"
                 onSubmitEditing={() => Keyboard.dismiss()}
                 style={{
-                    backgroundColor: '#1C1C2E',
+                    backgroundColor: COLORS.color1C1C2E,
                     borderRadius: 8,
                     padding: 12,
-                    color: 'white',
+                    color: COLORS.white,
                     marginBottom: 12,
                 }}
             />
@@ -124,7 +126,7 @@ export default function SearchScreen() {
                 ListFooterComponent={loading ? <ActivityIndicator style={{ marginVertical: 12 }} /> : null}
                 renderItem={({ item }) => (
                     <Card
-                        style={{ marginBottom: 12, backgroundColor: '#151526' }}
+                        style={{ marginBottom: 12, backgroundColor: COLORS.color151526 }}
                         onPress={() =>
                             router.push({ pathname: '/card/[id]', params: { ...item, id: item.id.toString() } })
                         }
@@ -136,10 +138,10 @@ export default function SearchScreen() {
                                 style={{ width: 100, height: 140, borderTopLeftRadius: 12, borderBottomLeftRadius: 12 }}
                             />
                             <View style={{ flex: 1, padding: 12 }}>
-                                <Text style={{ color: 'white', fontWeight: 'bold' }}>{item.name}</Text>
-                                <Text style={{ color: '#aaa', marginTop: 4 }}>{item.number}</Text>
-                                <Text style={{ color: '#ccc' }}>{item.rarity}</Text>
-                                <Text style={{ color: '#00FFAA', marginTop: 4 }}>
+                                <Text style={{ color: COLORS.white, fontWeight: 'bold' }}>{item.name}</Text>
+                                <Text style={{ color: COLORS.colorAAA, marginTop: 4 }}>{item.number}</Text>
+                                <Text style={{ color: COLORS.colorCCC }}>{item.rarity}</Text>
+                                <Text style={{ color: COLORS.color00FFAA, marginTop: 4 }}>
                                     Ofertas disponibles: {inventoryCounts[item.id] || 0}
                                 </Text>
 

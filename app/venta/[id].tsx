@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { crearConversacion } from '@/lib/crearConversacion'
 import { useSnackbar } from '@/providers/SnackbarProvider'
+import { COLORS } from '../../constants/GlobalStyles';
+
 
 export default function VentaDetalleScreen() {
   const {
@@ -71,7 +73,7 @@ export default function VentaDetalleScreen() {
         <Button
           icon="account"
           mode="outlined"
-          textColor="#00B0FF"
+          textColor={COLORS.color00B0FF}
           style={{ marginTop: 12 }}
           onPress={() => router.push({ pathname: '/vendedor/[id]', params: { id: vendedor_id.toString() } })}
         >
@@ -83,8 +85,8 @@ export default function VentaDetalleScreen() {
       <Button
         icon="chat"
         mode="contained"
-        buttonColor="#00B0FF"
-        textColor="#1C1C1C"
+        buttonColor={COLORS.color00B0FF}
+        textColor={COLORS.color1C1C1C}
         onPress={async () => {
           if (!userId || !vendedor_id) {
             showSnackbar('Inicia sesión para realizar una compra')
@@ -135,7 +137,7 @@ export default function VentaDetalleScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0F1C',
+    backgroundColor: COLORS.color0A0F1C,
     padding: 16,
   },
   image: {
@@ -146,27 +148,27 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   card: {
-    backgroundColor: '#BFCED6',
+    backgroundColor: COLORS.colorBFCED6,
     borderRadius: 12,
     padding: 16,
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#1C1C1C',
+    color: COLORS.color1C1C1C,
     marginBottom: 10,
   },
   label: {
-    color: '#444',
+    color: COLORS.color444,
     fontWeight: '600',
     marginTop: 8,
   },
   value: {
-    color: '#1C1C1C',
+    color: COLORS.color1C1C1C,
   },
   divider: {
     height: 1,
-    backgroundColor: '#999',
+    backgroundColor: COLORS.color999,
     marginVertical: 16,
   },
   button: {

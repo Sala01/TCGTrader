@@ -6,6 +6,8 @@ import { supabase } from '@/lib/supabase'
 import { isAfter } from 'date-fns'
 import { sendPushNotification } from '@/lib/sendPush'
 import { useSnackbar } from '@/providers/SnackbarProvider'
+import { COLORS } from '../../constants/GlobalStyles';
+
 
 export default function PujarScreen() {
     const { id } = useLocalSearchParams()
@@ -93,7 +95,7 @@ export default function PujarScreen() {
         if (error) {
             showSnackbar('No se pudo registrar la puja.')
         } else {
-            showSnackbar(`Has pujado $${nuevoMonto}`, '#00B0FF')
+            showSnackbar(`Has pujado $${nuevoMonto}`, COLORS.color00B0FF)
 
             // 🔔 Notificar al dueño de la subasta
             const { data: subastaCompleta } = await supabase
@@ -138,7 +140,7 @@ export default function PujarScreen() {
     if (loading || !inventario) {
         return (
             <View style={styles.loading}>
-                <ActivityIndicator size="large" color="#00B0FF" />
+                <ActivityIndicator size="large" color={COLORS.color00B0FF} />
             </View>
         )
     }
@@ -160,8 +162,8 @@ export default function PujarScreen() {
             <Button
                 mode="contained"
                 icon="gavel"
-                buttonColor="#00B0FF"
-                textColor="#1C1C1C"
+                buttonColor={COLORS.color00B0FF}
+                textColor={COLORS.color1C1C1C}
                 style={styles.button}
                 onPress={handlePujar}
             >
@@ -173,32 +175,32 @@ export default function PujarScreen() {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#0A0F1C',
+        backgroundColor: COLORS.color0A0F1C,
         flex: 1,
         padding: 20,
     },
     loading: {
         flex: 1,
-        backgroundColor: '#0A0F1C',
+        backgroundColor: COLORS.color0A0F1C,
         justifyContent: 'center',
         alignItems: 'center',
     },
     title: {
-        color: '#BFCED6',
+        color: COLORS.colorBFCED6,
         fontSize: 22,
         marginBottom: 20,
         fontWeight: 'bold',
     },
     label: {
-        color: '#888',
+        color: COLORS.color888,
         marginTop: 12,
     },
     value: {
-        color: '#FFF',
+        color: COLORS.colorFFF,
         fontSize: 18,
     },
     valueFinal: {
-        color: '#00B0FF',
+        color: COLORS.color00B0FF,
         fontSize: 20,
         fontWeight: 'bold',
         marginTop: 8,

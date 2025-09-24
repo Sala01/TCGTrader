@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'expo-router'
 import AuthGuard from '@/components/AuthGuard'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { COLORS } from '../../constants/GlobalStyles';
+
 
 export default function ConversationsScreen() {
   const [conversations, setConversations] = useState<any[]>([])
@@ -80,8 +82,8 @@ export default function ConversationsScreen() {
         <List.Item
           title={otherUser?.username ?? 'Usuario'}
           description={lastMessage}
-          titleStyle={{ color: 'white' }}
-          descriptionStyle={{ color: '#aaa' }}
+          titleStyle={{ color: COLORS.white }}
+          descriptionStyle={{ color: COLORS.colorAAA }}
           left={() =>
             otherUser?.avatar_url ? (
               <Image
@@ -89,10 +91,10 @@ export default function ConversationsScreen() {
                 style={{ width: 40, height: 40, borderRadius: 20, margin: 8 }}
               />
             ) : (
-              <List.Icon icon="account" color="#00B0FF" />
+              <List.Icon icon="account" color={COLORS.color00B0FF} />
             )
           }
-          style={{ backgroundColor: '#1C1C2E', marginBottom: 8, borderRadius: 12 }}
+          style={{ backgroundColor: COLORS.color1C1C2E, marginBottom: 8, borderRadius: 12 }}
         />
       </TouchableOpacity>
     )
@@ -100,12 +102,12 @@ export default function ConversationsScreen() {
 
   return (
     <AuthGuard>
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0F1C', padding: 12 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.color0A0F1C, padding: 12 }}>
         {loading ? (
-          <ActivityIndicator animating color="#00B0FF" />
+          <ActivityIndicator animating color={COLORS.color00B0FF} />
         ) : conversations.length === 0 ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
-            <Text style={{ color: 'gray', fontSize: 16, textAlign: 'center' }}>
+            <Text style={{ color: COLORS.gray, fontSize: 16, textAlign: 'center' }}>
               No tienes chats activos todavía. Envía una oferta o responde una para comenzar una conversación.
             </Text>
           </View>

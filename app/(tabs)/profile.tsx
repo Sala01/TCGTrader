@@ -8,6 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useFocusEffect } from '@react-navigation/native'
 import AuthGuard from '@/components/AuthGuard'
 import useUser from '@/hooks/useUser'
+import { COLORS } from '../../constants/GlobalStyles';
+
 
 export default function PerfilScreen() {
   const [section, setSection] = useState<'comentarios' | 'ventas' | 'compras'>('comentarios')
@@ -139,25 +141,25 @@ export default function PerfilScreen() {
         keyExtractor={(item, i) => (item.id || i).toString()}
         renderItem={({ item }) => (
           section === 'comentarios' ? (
-            <Card style={{ margin: 8, backgroundColor: '#1C1C2E', borderRadius: 12 }}>
+            <Card style={{ margin: 8, backgroundColor: COLORS.color1C1C2E, borderRadius: 12 }}>
               <Card.Content>
-                <Text style={{ color: 'white' }}>🗣️ {item.comentario} - ⭐ {item.rating}</Text>
+                <Text style={{ color: COLORS.white }}>🗣️ {item.comentario} - ⭐ {item.rating}</Text>
               </Card.Content>
             </Card>
           ) : (
-            <Card style={{ margin: 8, backgroundColor: '#1C1C2E', borderRadius: 12 }}>
+            <Card style={{ margin: 8, backgroundColor: COLORS.color1C1C2E, borderRadius: 12 }}>
               <Card.Content>
-                <Text style={{ color: '#BFCED6', fontWeight: 'bold' }}>🃏 {item.inventory?.cards.name}</Text>
-                <Text style={{ color: '#ccc' }}>
+                <Text style={{ color: COLORS.colorBFCED6, fontWeight: 'bold' }}>🃏 {item.inventory?.cards.name}</Text>
+                <Text style={{ color: COLORS.colorCCC }}>
                   💲 Precio unitario: ${item.price / item.cantidad} 📦 Cantidad: {item.cantidad} 💰 Total: ${item.price}
                 </Text>
-                <Text style={{ color: '#ccc' }}>
+                <Text style={{ color: COLORS.colorCCC }}>
                   🚚 Estado del envío: {item.status || 'N/A'}
                 </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text style={{ color: '#ccc', flex: 1 }}>📄 Guía: {item.shipping_code || 'N/A'}</Text>
+                  <Text style={{ color: COLORS.colorCCC, flex: 1 }}>📄 Guía: {item.shipping_code || 'N/A'}</Text>
                   {item.shipping_code && (
-                    <IconButton icon="content-copy" onPress={() => copyToClipboard(item.shipping_code)} iconColor="#00B0FF" />
+                    <IconButton icon="content-copy" onPress={() => copyToClipboard(item.shipping_code)} iconColor={COLORS.color00B0FF} />
                   )}
                 </View>
               </Card.Content>
@@ -174,11 +176,11 @@ export default function PerfilScreen() {
   return (
     <AuthGuard>
       {userData && (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0F1C' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.color0A0F1C }}>
           <View style={{ alignItems: 'flex-end', padding: 8 }}>
             <IconButton
               icon="logout"
-              iconColor="#FF5555"
+              iconColor={COLORS.colorFF5555}
               size={24}
               onPress={async () => {
                 await supabase.auth.signOut()
@@ -187,25 +189,25 @@ export default function PerfilScreen() {
             />
           </View>
           {user && (
-            <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: '#1C1C2E', margin: 12, borderRadius: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: COLORS.color1C1C2E, margin: 12, borderRadius: 16 }}>
               <Image
                 source={{ uri: userData.avatar_url }}
-                style={{ width: 80, height: 80, borderRadius: 40, borderWidth: 2, borderColor: '#00B0FF', marginRight: 12 }}
+                style={{ width: 80, height: 80, borderRadius: 40, borderWidth: 2, borderColor: COLORS.color00B0FF, marginRight: 12 }}
               />
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#BFCED6' }}>{userData.username}</Text>
-                <Text style={{ fontSize: 14, color: '#ccc' }}>{user.email}</Text>
-                <Text style={{ fontSize: 14, color: '#ccc' }}>{userData.pais_nombre}, {userData.estado_nombre}</Text>
-                <Text style={{ color: '#ccc', marginTop: 4 }}>⭐ {rating} ({reviewCount})</Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: COLORS.colorBFCED6 }}>{userData.username}</Text>
+                <Text style={{ fontSize: 14, color: COLORS.colorCCC }}>{user.email}</Text>
+                <Text style={{ fontSize: 14, color: COLORS.colorCCC }}>{userData.pais_nombre}, {userData.estado_nombre}</Text>
+                <Text style={{ color: COLORS.colorCCC, marginTop: 4 }}>⭐ {rating} ({reviewCount})</Text>
               </View>
-              <IconButton icon="pencil" iconColor="#00B0FF" onPress={() => router.push('/edit-profile')} />
+              <IconButton icon="pencil" iconColor={COLORS.color00B0FF} onPress={() => router.push('/edit-profile')} />
             </View>
           )}
 
 
           <View style={{
             flexDirection: 'row',
-            backgroundColor: '#1C1C2E',
+            backgroundColor: COLORS.color1C1C2E,
             borderRadius: 32,
             marginHorizontal: 16,
             padding: 4,
@@ -221,8 +223,8 @@ export default function PerfilScreen() {
                 key={key}
                 mode="contained"
                 onPress={() => { setSection(key); setPage(1) }}
-                buttonColor={section === key ? '#00B0FF' : 'transparent'}
-                textColor={section === key ? '#fff' : '#BFCED6'}
+                buttonColor={section === key ? COLORS.color00B0FF : 'transparent'}
+                textColor={section === key ? COLORS.colorFFF : COLORS.colorBFCED6}
                 style={{
                   flex: 1,
                   marginHorizontal: 4,

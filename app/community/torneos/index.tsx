@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { View, FlatList, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
 import * as Linking from 'expo-linking';
+import { COLORS } from '../../../constants/GlobalStyles';
+
 
 type Tournament = {
   id: number;
@@ -89,7 +91,7 @@ export default function TournamentsScreen() {
   return (
     <View style={styles.container}>
       {loading ? (
-        <ActivityIndicator animating={true} color="#00B0FF" />
+        <ActivityIndicator animating={true} color={COLORS.color00B0FF} />
       ) : error ? (
         <Text style={styles.error}>❌ {error}</Text>
       ) : tournaments.length === 0 ? (
@@ -109,11 +111,11 @@ export default function TournamentsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0F1C',
+    backgroundColor: COLORS.color0A0F1C,
     padding: 16,
   },
   card: {
-    backgroundColor: '#1C1C2E',
+    backgroundColor: COLORS.color1C1C2E,
     padding: 12,
     borderRadius: 12,
     marginBottom: 12,
@@ -121,20 +123,20 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     fontSize: 16,
-    color: '#FFF',
+    color: COLORS.colorFFF,
     marginBottom: 6,
   },
   meta: {
     fontSize: 13,
-    color: '#BFCED6',
+    color: COLORS.colorBFCED6,
   },
   empty: {
-    color: '#BFCED6',
+    color: COLORS.colorBFCED6,
     textAlign: 'center',
     marginTop: 20,
   },
   error: {
-    color: 'red',
+    color: COLORS.red,
     textAlign: 'center',
     marginTop: 20,
   },

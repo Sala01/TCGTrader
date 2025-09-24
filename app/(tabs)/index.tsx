@@ -6,6 +6,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import SectionHeader from '@/components/SectionHeader'
 import MostSoldSection from '@/components/MostSoldSection'
 import ActiveAuctionsSection from '@/components/ActiveAuctions'
+import { COLORS } from '../../constants/GlobalStyles';
+
 
 export default function HomeScreen() {
   return (
@@ -38,7 +40,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0F1C',
+    backgroundColor: COLORS.color0A0F1C,
   },
   scrollContainer: {
     paddingBottom: 20,
@@ -57,7 +59,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   slogan: {
-    color: '#00B0FF',
+    color: COLORS.color00B0FF,
     fontSize: 14,
     fontWeight: '600',
   },

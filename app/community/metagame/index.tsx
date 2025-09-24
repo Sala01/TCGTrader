@@ -3,6 +3,8 @@ import { View, FlatList, Image } from 'react-native'
 import { Text, ActivityIndicator, ProgressBar } from 'react-native-paper'
 import { TouchableOpacity } from 'react-native'
 import { useRouter } from 'expo-router'
+import { COLORS } from '../../../constants/GlobalStyles';
+
 
 
 type DeckEntry = {
@@ -54,7 +56,7 @@ export default function MetaGameScreen() {
         <View
           style={{
             flexDirection: 'row',
-            backgroundColor: '#BFCED6',
+            backgroundColor: COLORS.colorBFCED6,
             borderRadius: 8,
             marginBottom: 12,
             alignItems: 'center',
@@ -76,14 +78,14 @@ export default function MetaGameScreen() {
               style={{
                 fontWeight: 'bold',
                 fontSize: 16,
-                color: '#1C1C1C',
+                color: COLORS.color1C1C1C,
                 textTransform: 'uppercase',
               }}
             >
               {item.name}
             </Text>
-            <Text style={{ color: '#444', fontSize: 12 }}>Uso: {usage}%</Text>
-            <ProgressBar progress={progress} color="#00B0FF" style={{ marginTop: 4, height: 6, borderRadius: 3 }} />
+            <Text style={{ color: COLORS.color444, fontSize: 12 }}>Uso: {usage}%</Text>
+            <ProgressBar progress={progress} color={COLORS.color00B0FF} style={{ marginTop: 4, height: 6, borderRadius: 3 }} />
           </View>
         </View>
       </TouchableOpacity>
@@ -91,13 +93,13 @@ export default function MetaGameScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0A0F1C', padding: 16 }}>
-      <Text variant="titleLarge" style={{ color: 'white', marginBottom: 16 }}>
+    <View style={{ flex: 1, backgroundColor: COLORS.color0A0F1C, padding: 16 }}>
+      <Text variant="titleLarge" style={{ color: COLORS.white, marginBottom: 16 }}>
         Tier List - Última Semana
       </Text>
 
       {loading ? (
-        <ActivityIndicator animating={true} color="#00B0FF" />
+        <ActivityIndicator animating={true} color={COLORS.color00B0FF} />
       ) : (
         <FlatList
           data={decks}

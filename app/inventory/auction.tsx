@@ -13,6 +13,8 @@ import { decode as atob } from 'base-64'
 import { useSnackbar } from '@/providers/SnackbarProvider'
 import * as ImageManipulator from 'expo-image-manipulator'
 import DateTimePickerModal from "react-native-modal-datetime-picker"
+import { COLORS } from '../../constants/GlobalStyles';
+
 
 const estados = ['NM', 'LP', 'MP', 'HP', 'D']
 
@@ -115,7 +117,7 @@ export default function AddAuctionScreen() {
         if (error) throw error
       }
 
-      showSnackbar('Subastas creadas exitosamente', '#00B0FF')
+      showSnackbar('Subastas creadas exitosamente', COLORS.color00B0FF)
       setCartas([])
     } catch (e) {
       console.error('Upload Error', e)
@@ -126,17 +128,17 @@ export default function AddAuctionScreen() {
   }
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: '#0A0F1C', padding: 16 }}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: COLORS.color0A0F1C, padding: 16 }}>
       <FlatList
         ListHeaderComponent={<>
           <SearchBarInline onSelect={setSelectedCard} resetTrigger={resetKey} />
           {selectedCard && (
-            <View style={{ flexDirection: 'row', marginVertical: 12, backgroundColor: '#1C1C2E', borderRadius: 8, padding: 12 }}>
+            <View style={{ flexDirection: 'row', marginVertical: 12, backgroundColor: COLORS.color1C1C2E, borderRadius: 8, padding: 12 }}>
               <Image source={{ uri: selectedCard.image_url }} style={{ width: 100, height: 140, borderRadius: 8, marginRight: 12 }} />
               <View style={{ flex: 1 }}>
-                <Text style={{ color: 'white', fontWeight: 'bold' }}>{selectedCard.name}</Text>
-                <Text style={{ color: '#aaa' }}>{selectedCard.number}</Text>
-                <Text style={{ color: '#00B0FF' }}>{selectedCard.rarity}</Text>
+                <Text style={{ color: COLORS.white, fontWeight: 'bold' }}>{selectedCard.name}</Text>
+                <Text style={{ color: COLORS.colorAAA }}>{selectedCard.number}</Text>
+                <Text style={{ color: COLORS.color00B0FF }}>{selectedCard.rarity}</Text>
               </View>
             </View>
           )}
@@ -194,24 +196,24 @@ export default function AddAuctionScreen() {
           <Button
             mode="contained"
             onPress={handleAddToList}
-            buttonColor="#00B0FF"
+            buttonColor={COLORS.color00B0FF}
             disabled={!selectedCard || !image || !precioInicial || !validarMultiplo10(precioInicial) || !validarMultiplo10(pujaMinima)}
             style={{ marginBottom: 24 }}
           >
             Agregar a subasta
           </Button>
 
-          <Subheading style={{ color: 'white', marginBottom: 8 }}>Cartas en subasta</Subheading>
+          <Subheading style={{ color: COLORS.white, marginBottom: 8 }}>Cartas en subasta</Subheading>
         </>}
 
         data={cartas}
         keyExtractor={(_, i) => i.toString()}
         renderItem={({ item, index }) => (
-          <Card style={{ marginBottom: 12, backgroundColor: '#1C1C2E' }}>
+          <Card style={{ marginBottom: 12, backgroundColor: COLORS.color1C1C2E }}>
             <Card.Content style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: 'white', fontWeight: 'bold' }}>{item.name}</Text>
-                <Text style={{ color: '#aaa' }}>
+                <Text style={{ color: COLORS.white, fontWeight: 'bold' }}>{item.name}</Text>
+                <Text style={{ color: COLORS.colorAAA }}>
                   {item.estado} - Valor inicial: ${item.precioInicial} - Puja: ${item.pujaMinima}
                 </Text>
               </View>
@@ -227,7 +229,7 @@ export default function AddAuctionScreen() {
               onPress={handleUploadAll}
               loading={subiendo}
               disabled={subiendo}
-              buttonColor="#00B0FF"
+              buttonColor={COLORS.color00B0FF}
               style={{ marginTop: 16 }}
             >
               Subir subastas

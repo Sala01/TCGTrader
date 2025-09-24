@@ -4,6 +4,8 @@ import { View, FlatList, Image, useWindowDimensions, StyleSheet, TouchableOpacit
 import { Text, Button, ActivityIndicator, Portal, Dialog } from 'react-native-paper'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import ZoomCardDialog from '@/components/ZoomCardDialog'
+import { COLORS } from '../../../constants/GlobalStyles';
+
 
 type BanlistCard = {
   name: string
@@ -48,13 +50,13 @@ export default function BanlistScreen() {
   const getBorderColor = (status: BanlistCard['status_text']) => {
     switch (status) {
       case 'Forbidden':
-        return '#FF5252'
+        return COLORS.colorFF5252
       case 'Limited':
-        return '#FFB300'
+        return COLORS.colorFFB300
       case 'Semi-Limited':
-        return '#66BB6A'
+        return COLORS.color66BB6A
       default:
-        return '#FFFFFF'
+        return COLORS.colorFFFFFF
     }
   }
 
@@ -71,7 +73,7 @@ export default function BanlistScreen() {
       <View
         style={{
           flexDirection: 'row',
-          backgroundColor: '#1C1C2E',
+          backgroundColor: COLORS.color1C1C2E,
           borderRadius: 32,
           marginHorizontal: 16,
           padding: 4,
@@ -84,8 +86,8 @@ export default function BanlistScreen() {
             key={key}
             mode="contained"
             onPress={() => onSelect(key)}
-            buttonColor={selected === key ? '#00B0FF' : 'transparent'}
-            textColor={selected === key ? '#fff' : '#BFCED6'}
+            buttonColor={selected === key ? COLORS.color00B0FF : 'transparent'}
+            textColor={selected === key ? COLORS.colorFFF : COLORS.colorBFCED6}
             style={{
               flex: 1,
               marginHorizontal: 4,
@@ -146,7 +148,7 @@ export default function BanlistScreen() {
         />
 
         {loading ? (
-          <ActivityIndicator animating={true} color="#00B0FF" />
+          <ActivityIndicator animating={true} color={COLORS.color00B0FF} />
         ) : (
           <FlatList
             data={filtered}
@@ -165,14 +167,14 @@ export default function BanlistScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#0A0F1C',
+    backgroundColor: COLORS.color0A0F1C,
   },
   container: {
     flex: 1,
     padding: 16,
   },
   title: {
-    color: 'white',
+    color: COLORS.white,
     marginBottom: 12,
     textAlign: 'center',
   },
@@ -194,7 +196,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   cardName: {
-    color: 'white',
+    color: COLORS.white,
     fontSize: 11,
     textAlign: 'center',
   },

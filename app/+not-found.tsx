@@ -3,6 +3,8 @@ import { StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { COLORS } from '../constants/GlobalStyles';
+
 
 export default function NotFoundScreen() {
   return (

@@ -5,6 +5,8 @@ import { Text, Button, ActivityIndicator } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
 import { sendPushNotification } from '@/lib/sendPush'
 import { useSnackbar } from '@/providers/SnackbarProvider'
+import { COLORS } from '../../constants/GlobalStyles';
+
 
 export default function ConcretarVentaScreen() {
   const { inventario_id, comprador_id } = useLocalSearchParams()
@@ -96,16 +98,16 @@ export default function ConcretarVentaScreen() {
       )
     }
 
-    showSnackbar('La venta se ha concretado correctamente.', '#00B0FF')
+    showSnackbar('La venta se ha concretado correctamente.', COLORS.color00B0FF)
     router.back()
   }
 
   if (loading) {
-    return <ActivityIndicator animating color="#00B0FF" style={{ marginTop: 40 }} />
+    return <ActivityIndicator animating color={COLORS.color00B0FF} style={{ marginTop: 40 }} />
   }
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#0A0F1C', padding: 16 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: COLORS.color0A0F1C, padding: 16 }}>
       {producto?.foto_url && (
         <Image
           source={{ uri: producto.foto_url }}
@@ -113,21 +115,21 @@ export default function ConcretarVentaScreen() {
         />
       )}
 
-      <Text style={{ color: 'white', fontSize: 18, marginBottom: 4 }}>
+      <Text style={{ color: COLORS.white, fontSize: 18, marginBottom: 4 }}>
         {producto?.nombre}
       </Text>
 
-      <Text style={{ color: '#ccc' }}>Cantidad disponible: {producto?.cantidad}</Text>
+      <Text style={{ color: COLORS.colorCCC }}>Cantidad disponible: {producto?.cantidad}</Text>
 
       <TextInput
         placeholder="Cantidad a vender"
         value={cantidad}
         onChangeText={setCantidad}
         keyboardType="numeric"
-        placeholderTextColor="#888"
+        placeholderTextColor={COLORS.color888}
         style={{
-          color: 'white',
-          backgroundColor: '#1C1C2E',
+          color: COLORS.white,
+          backgroundColor: COLORS.color1C1C2E,
           padding: 12,
           borderRadius: 8,
           marginTop: 16,
@@ -139,10 +141,10 @@ export default function ConcretarVentaScreen() {
         value={precio}
         onChangeText={setPrecio}
         keyboardType="decimal-pad"
-        placeholderTextColor="#888"
+        placeholderTextColor={COLORS.color888}
         style={{
-          color: 'white',
-          backgroundColor: '#1C1C2E',
+          color: COLORS.white,
+          backgroundColor: COLORS.color1C1C2E,
           padding: 12,
           borderRadius: 8,
           marginTop: 12,
@@ -153,17 +155,17 @@ export default function ConcretarVentaScreen() {
         placeholder="Guía de envío (opcional)"
         value={guiaEnvio}
         onChangeText={setGuiaEnvio}
-        placeholderTextColor="#888"
+        placeholderTextColor={COLORS.color888}
         style={{
-          color: 'white',
-          backgroundColor: '#1C1C2E',
+          color: COLORS.white,
+          backgroundColor: COLORS.color1C1C2E,
           padding: 12,
           borderRadius: 8,
           marginTop: 12,
         }}
       />
 
-      <Button mode="contained" onPress={concretarVenta} style={{ marginTop: 24, backgroundColor: '#00B0FF' }}>
+      <Button mode="contained" onPress={concretarVenta} style={{ marginTop: 24, backgroundColor: COLORS.color00B0FF }}>
         Confirmar Venta
       </Button>
     </ScrollView>

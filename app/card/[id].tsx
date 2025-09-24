@@ -5,6 +5,8 @@ import { LineChart } from 'react-native-chart-kit'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { router } from 'expo-router'
+import { COLORS } from '../../constants/GlobalStyles';
+
 
 const screenWidth = Dimensions.get('window').width
 const fallbackUrl = 'https://static.wikia.nocookie.net/yugioh/images/8/85/TheWingedDragonofRa-GBI-AE-Back.png/revision/latest?cb=20120824234540'
@@ -116,7 +118,7 @@ export default function CardDetailScreen() {
   }
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#0A0F1C' }} contentContainerStyle={{ padding: 16 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: COLORS.color0A0F1C }} contentContainerStyle={{ padding: 16 }}>
       <View style={{ flexDirection: 'row', gap: 12 }}>
         <Image
           source={{ uri: !imageError && image_url ? image_url.toString() : fallbackUrl }}
@@ -124,32 +126,32 @@ export default function CardDetailScreen() {
           style={{ width: 130, height: 190, borderRadius: 8 }}
         />
         <View style={{ flex: 1 }}>
-          <Title style={{ color: 'white' }}>{name}</Title>
-          <Text style={{ color: '#aaa' }}>{number}</Text>
-          <Text style={{ color: '#ddd', marginTop: 4 }}>{rarity}</Text>
+          <Title style={{ color: COLORS.white }}>{name}</Title>
+          <Text style={{ color: COLORS.colorAAA }}>{number}</Text>
+          <Text style={{ color: COLORS.colorDDD, marginTop: 4 }}>{rarity}</Text>
         </View>
       </View>
 
       <Divider style={{ marginVertical: 16 }} />
 
       <View>
-        <Subheading style={{ color: 'white' }}>Detalles</Subheading>
-        <Text style={{ color: '#ccc', marginTop: 4 }}>{description}</Text>
+        <Subheading style={{ color: COLORS.white }}>Detalles</Subheading>
+        <Text style={{ color: COLORS.colorCCC, marginTop: 4 }}>{description}</Text>
 
         <Divider style={{ marginVertical: 16 }} />
 
-        <Subheading style={{ color: 'white' }}>Stats</Subheading>
-        <Text style={{ color: '#ccc' }}>Number: {number}</Text>
-        <Text style={{ color: '#ccc' }}>Type: {card_type}</Text>
-        <Text style={{ color: '#ccc' }}>Monster Type: {monster_type}</Text>
-        <Text style={{ color: '#ccc' }}>Attribute: {attribute}</Text>
-        <Text style={{ color: '#ccc' }}>ATK/DEF: {attack} / {defense}</Text>
+        <Subheading style={{ color: COLORS.white }}>Stats</Subheading>
+        <Text style={{ color: COLORS.colorCCC }}>Number: {number}</Text>
+        <Text style={{ color: COLORS.colorCCC }}>Type: {card_type}</Text>
+        <Text style={{ color: COLORS.colorCCC }}>Monster Type: {monster_type}</Text>
+        <Text style={{ color: COLORS.colorCCC }}>Attribute: {attribute}</Text>
+        <Text style={{ color: COLORS.colorCCC }}>ATK/DEF: {attack} / {defense}</Text>
       </View>
 
       <Divider style={{ marginVertical: 16 }} />
-      <Subheading style={{ color: 'white', marginBottom: 8 }}>Historial de Precios</Subheading>
+      <Subheading style={{ color: COLORS.white, marginBottom: 8 }}>Historial de Precios</Subheading>
       {priceHistory.length === 0 ? (
-        <Text style={{ color: 'gray', textAlign: 'center' }}>Sin datos de precios.</Text>
+        <Text style={{ color: COLORS.gray, textAlign: 'center' }}>Sin datos de precios.</Text>
       ) : (
         <LineChart
           data={{
@@ -160,16 +162,16 @@ export default function CardDetailScreen() {
           height={220}
           yAxisSuffix="$"
           chartConfig={{
-            backgroundColor: '#0A0F1C',
-            backgroundGradientFrom: '#0A0F1C',
-            backgroundGradientTo: '#0A0F1C',
+            backgroundColor: COLORS.color0A0F1C,
+            backgroundGradientFrom: COLORS.color0A0F1C,
+            backgroundGradientTo: COLORS.color0A0F1C,
             decimalPlaces: 2,
             color: (opacity = 1) => `rgba(0, 176, 255, ${opacity})`,
-            labelColor: () => '#ccc',
+            labelColor: () => COLORS.colorCCC,
             propsForDots: {
               r: '4',
               strokeWidth: '2',
-              stroke: '#00B0FF',
+              stroke: COLORS.color00B0FF,
             },
           }}
           bezier
@@ -178,7 +180,7 @@ export default function CardDetailScreen() {
       )}
 
       <Divider style={{ marginVertical: 16 }} />
-      <Subheading style={{ color: 'white', marginBottom: 8 }}>En venta</Subheading>
+      <Subheading style={{ color: COLORS.white, marginBottom: 8 }}>En venta</Subheading>
       {ventas.length > 0 ? (
         ventas.map((item) => (
           <TouchableOpacity
@@ -205,27 +207,27 @@ export default function CardDetailScreen() {
 
             }
           >
-            <Card key={item.id} style={{ marginBottom: 12, backgroundColor: '#1C1C2E' }}>
+            <Card key={item.id} style={{ marginBottom: 12, backgroundColor: COLORS.color1C1C2E }}>
               <Card.Title
                 title={item.users.username}
                 left={() => (
                   <Image source={{ uri: item.users.avatar_url }} style={{ width: 40, height: 40, borderRadius: 20 }} />
                 )}
-                titleStyle={{ color: 'white' }}
+                titleStyle={{ color: COLORS.white }}
               />
               <Card.Content>
-                <Text style={{ color: '#00B0FF' }}>Precio: ${item.precio}</Text>
-                <Text style={{ color: '#ccc' }}>Condición: {item.estado}</Text>
+                <Text style={{ color: COLORS.color00B0FF }}>Precio: ${item.precio}</Text>
+                <Text style={{ color: COLORS.colorCCC }}>Condición: {item.estado}</Text>
               </Card.Content>
             </Card>
           </TouchableOpacity>
         ))
       ) : (
-        <Text style={{ color: '#ccc', textAlign: 'center' }}>No hay ventas activas para esta carta.</Text>
+        <Text style={{ color: COLORS.colorCCC, textAlign: 'center' }}>No hay ventas activas para esta carta.</Text>
       )}
 
       <Divider style={{ marginVertical: 16 }} />
-      <Subheading style={{ color: 'white', marginBottom: 8 }}>En subasta</Subheading>
+      <Subheading style={{ color: COLORS.white, marginBottom: 8 }}>En subasta</Subheading>
       {subastas.length > 0 ? (
         subastas.map((item) => (
           <TouchableOpacity
@@ -250,38 +252,38 @@ export default function CardDetailScreen() {
               })
             }
           >
-            <Card key={item.id} style={{ marginBottom: 12, backgroundColor: '#1C1C2E' }}>
+            <Card key={item.id} style={{ marginBottom: 12, backgroundColor: COLORS.color1C1C2E }}>
               <Card.Title
                 title={item.users.username}
                 left={() => (
                   <Image source={{ uri: item.users.avatar_url }} style={{ width: 40, height: 40, borderRadius: 20 }} />
                 )}
-                titleStyle={{ color: 'white' }}
+                titleStyle={{ color: COLORS.white }}
               />
               <Card.Content>
-                <Text style={{ color: '#00B0FF' }}>Actual: ${item.valor_actual}</Text>
-                <Text style={{ color: '#FFB300' }}>Puja mínima: ${item.puja_minima}</Text>
-                <Text style={{ color: '#ccc' }}>Condición: {item.estado}</Text>
-                <Text style={{ color: '#ccc' }}>{getTiempoRestante(item.fecha_limite)}</Text>
+                <Text style={{ color: COLORS.color00B0FF }}>Actual: ${item.valor_actual}</Text>
+                <Text style={{ color: COLORS.colorFFB300 }}>Puja mínima: ${item.puja_minima}</Text>
+                <Text style={{ color: COLORS.colorCCC }}>Condición: {item.estado}</Text>
+                <Text style={{ color: COLORS.colorCCC }}>{getTiempoRestante(item.fecha_limite)}</Text>
               </Card.Content>
             </Card>
           </TouchableOpacity>
         ))
       ) : (
-        <Text style={{ color: '#ccc', textAlign: 'center' }}>No hay subastas activas para esta carta.</Text>
+        <Text style={{ color: COLORS.colorCCC, textAlign: 'center' }}>No hay subastas activas para esta carta.</Text>
       )}
 
       {ventas.length === 0 && subastas.length === 0 && (
         <>
           <Divider style={{ marginVertical: 16 }} />
-          <Text style={{ color: '#ccc', textAlign: 'center' }}>
+          <Text style={{ color: COLORS.colorCCC, textAlign: 'center' }}>
             Actualmente no hay publicaciones activas de esta carta.
           </Text>
         </>
       )}
 
       <Divider style={{ marginVertical: 16 }} />
-      <Subheading style={{ color: 'white', marginBottom: 8 }}>Otros usuarios también vieron</Subheading>
+      <Subheading style={{ color: COLORS.white, marginBottom: 8 }}>Otros usuarios también vieron</Subheading>
       <FlatList
         data={suggested}
         horizontal
@@ -292,15 +294,15 @@ export default function CardDetailScreen() {
           <TouchableOpacity
             onPress={() => router.push({ pathname: '/card/[id]', params: { ...item, id: item.id.toString() } })}
           >
-            <Card style={{ width: 160, marginRight: 12, backgroundColor: '#1C1C2E' }}>
+            <Card style={{ width: 160, marginRight: 12, backgroundColor: COLORS.color1C1C2E }}>
               <Card.Cover
                 source={{ uri: !errorImages[item.id] && item.image_url ? item.image_url : fallbackUrl }}
                 onError={() => setErrorImages((prev) => ({ ...prev, [item.id]: true }))}
                 style={{ height: 180 }}
               />
               <Card.Content>
-                <Text style={{ color: 'white', fontWeight: 'bold' }} numberOfLines={2}>{item.name}</Text>
-                <Text style={{ color: '#aaa', fontSize: 12, marginTop: 4 }}>{item.rarity}</Text>
+                <Text style={{ color: COLORS.white, fontWeight: 'bold' }} numberOfLines={2}>{item.name}</Text>
+                <Text style={{ color: COLORS.colorAAA, fontSize: 12, marginTop: 4 }}>{item.rarity}</Text>
               </Card.Content>
             </Card>
           </TouchableOpacity>

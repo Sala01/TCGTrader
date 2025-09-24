@@ -10,6 +10,8 @@ import AuthGuard from '@/components/AuthGuard'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useSnackbar } from '@/providers/SnackbarProvider'
 import ConfirmDialog from '@/components/ConfirmDialog'
+import { COLORS } from '../../constants/GlobalStyles';
+
 
 interface InventoryItem {
   id: number
@@ -79,7 +81,7 @@ export default function InventoryScreen() {
     const { error } = await supabase.from('inventory').delete().eq('id', itemToDelete)
     if (!error) {
       setItems((prev) => prev.filter((i) => i.id !== itemToDelete))
-      showSnackbar('Carta eliminada correctamente', '#00C853')
+      showSnackbar('Carta eliminada correctamente', COLORS.color00C853)
     } else {
       showSnackbar('Error al eliminar carta')
     }
@@ -107,25 +109,25 @@ export default function InventoryScreen() {
 
   return (
     <AuthGuard>
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0F1C', padding: 12 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.color0A0F1C, padding: 12 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 16 }}>
           <Button
             mode={vista === 'venta' ? 'contained' : 'outlined'}
-            buttonColor="#00B0FF"
+            buttonColor={COLORS.color00B0FF}
             onPress={() => setVista('venta')}
           >
             Ventas
           </Button>
           <Button
             mode={vista === 'subasta' ? 'contained' : 'outlined'}
-            buttonColor="#FFB300"
+            buttonColor={COLORS.colorFFB300}
             onPress={() => setVista('subasta')}
           >
             Subastas
           </Button>
           <Button
             mode={vista === 'todas' ? 'contained' : 'outlined'}
-            buttonColor="#666"
+            buttonColor={COLORS.color666}
             onPress={() => setVista('todas')}
           >
             Todas
@@ -140,29 +142,29 @@ export default function InventoryScreen() {
           refreshing={loading}
           onRefresh={fetchInventory}
           renderItem={({ item }) => (
-            <Card style={{ backgroundColor: '#1C1C2E', marginBottom: 12 }}>
+            <Card style={{ backgroundColor: COLORS.color1C1C2E, marginBottom: 12 }}>
               <View style={{ flexDirection: 'row' }}>
                 <Image
                   source={{ uri: item.foto_url }}
                   style={{ width: 100, height: 140, borderTopLeftRadius: 12, borderBottomLeftRadius: 12 }}
                 />
                 <View style={{ flex: 1, padding: 12 }}>
-                  <Text style={{ color: 'white', fontWeight: 'bold' }}>{item.name}</Text>
-                  <Text style={{ color: '#aaa', marginTop: 4 }}>Condición: {item.estado}</Text>
+                  <Text style={{ color: COLORS.white, fontWeight: 'bold' }}>{item.name}</Text>
+                  <Text style={{ color: COLORS.colorAAA, marginTop: 4 }}>Condición: {item.estado}</Text>
 
                   {item.tipo === 'subasta' ? (
                     <>
-                      <Text style={{ color: '#00B0FF', marginTop: 4 }}>Actual: ${item.valor_actual}</Text>
-                      <Text style={{ color: '#FFB300' }}>Puja mínima: ${item.puja_minima}</Text>
-                      <Text style={{ color: '#ccc' }}>{getTiempoRestante(item.fecha_limite)}</Text>
+                      <Text style={{ color: COLORS.color00B0FF, marginTop: 4 }}>Actual: ${item.valor_actual}</Text>
+                      <Text style={{ color: COLORS.colorFFB300 }}>Puja mínima: ${item.puja_minima}</Text>
+                      <Text style={{ color: COLORS.colorCCC }}>{getTiempoRestante(item.fecha_limite)}</Text>
                     </>
                   ) : (
-                    <Text style={{ color: '#00B0FF', marginTop: 4 }}>${item.precio.toFixed(2)}</Text>
+                    <Text style={{ color: COLORS.color00B0FF, marginTop: 4 }}>${item.precio.toFixed(2)}</Text>
                   )}
 
                   <View style={{ flexDirection: 'row', marginTop: 8 }}>
-                    <IconButton icon="pencil" iconColor="#00B0FF" onPress={() => router.push(`/inventory/edit/${item.id}`)} />
-                    <IconButton icon="delete" iconColor="#FF5252" onPress={() => confirmDelete(item.id)} />
+                    <IconButton icon="pencil" iconColor={COLORS.color00B0FF} onPress={() => router.push(`/inventory/edit/${item.id}`)} />
+                    <IconButton icon="delete" iconColor={COLORS.colorFF5252} onPress={() => confirmDelete(item.id)} />
                   </View>
                 </View>
               </View>
@@ -172,7 +174,7 @@ export default function InventoryScreen() {
             loading
               ? null
               : () => (
-                <Text style={{ color: 'gray', textAlign: 'center', marginTop: 32 }}>
+                <Text style={{ color: COLORS.gray, textAlign: 'center', marginTop: 32 }}>
                   No hay cartas en esta sección.
                 </Text>
               )

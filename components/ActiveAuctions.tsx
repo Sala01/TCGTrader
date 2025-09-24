@@ -4,6 +4,8 @@ import { Text, Button, Card } from 'react-native-paper'
 import { supabase } from '@/lib/supabase'
 import { router } from 'expo-router'
 import { useFocusEffect } from '@react-navigation/native'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 export default function ActiveAuctionsSection() {
   const [subastas, setSubastas] = useState<any[]>([])
@@ -96,7 +98,7 @@ export default function ActiveAuctionsSection() {
         ListFooterComponent={() => (
           <Button
             mode="outlined"
-            textColor="#00C8FF"
+            textColor={COLORS.color00C8FF}
             style={styles.footerButton}
             onPress={() => router.push('/subastas')}
           >
@@ -119,7 +121,7 @@ const styles = StyleSheet.create({
   card: {
     width: 160,
     marginRight: 12,
-    backgroundColor: '#1C1C2E',
+    backgroundColor: COLORS.color1C1C2E,
     borderRadius: 16,
     overflow: 'hidden',
   },
@@ -131,29 +133,29 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   username: {
-    color: '#FFFFFF',
+    color: COLORS.colorFFFFFF,
     fontWeight: '600',
     fontSize: 13,
     marginBottom: 2,
   },
   valorActual: {
-    color: '#00C8FF',
+    color: COLORS.color00C8FF,
     fontWeight: 'bold',
     fontSize: 13,
   },
   minimo: {
-    color: '#FFB300',
+    color: COLORS.colorFFB300,
     fontSize: 12,
     marginTop: 2,
   },
   tiempo: {
-    color: '#bbb',
+    color: COLORS.colorBBB,
     fontSize: 12,
     marginTop: 2,
   },
   footerButton: {
     alignSelf: 'center',
-    borderColor: '#00C8FF',
+    borderColor: COLORS.color00C8FF,
     borderRadius: 30,
     marginRight: 16,
     marginTop: 8,

@@ -3,6 +3,8 @@ import { useRouter } from 'expo-router'
 import { View, ActivityIndicator } from 'react-native'
 import useUser from '@/hooks/useUser'
 import usePushToken from '@/hooks/usePushToken'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user, loading } = useUser()
@@ -18,7 +20,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   if (loading || !user) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#00B0FF" />
+        <ActivityIndicator size="large" color={COLORS.color00B0FF} />
       </View>
     )
   }

@@ -8,6 +8,8 @@ import { formatDistanceToNowStrict, isAfter } from 'date-fns'
 import { crearConversacion } from '@/lib/crearConversacion'
 import { useFocusEffect } from '@react-navigation/native'
 import { useCallback } from 'react'
+import { COLORS } from '../../constants/GlobalStyles';
+
 
 export default function SubastaDetalleScreen() {
   const params = useLocalSearchParams()
@@ -139,8 +141,8 @@ export default function SubastaDetalleScreen() {
   if (!subasta) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#00B0FF" />
-        <Text style={{ color: 'white', marginTop: 16 }}>Cargando subasta...</Text>
+        <ActivityIndicator size="large" color={COLORS.color00B0FF} />
+        <Text style={{ color: COLORS.white, marginTop: 16 }}>Cargando subasta...</Text>
       </View>
     )
   }
@@ -186,7 +188,7 @@ export default function SubastaDetalleScreen() {
         <Button
           icon="account"
           mode="outlined"
-          textColor="#00B0FF"
+          textColor={COLORS.color00B0FF}
           style={{ marginTop: 12 }}
           onPress={() => router.push({ pathname: '/vendedor/[id]', params: { id: subasta.users.id } })}
         >
@@ -198,8 +200,8 @@ export default function SubastaDetalleScreen() {
           <Button
             mode="contained"
             icon="gavel"
-            buttonColor="#00B0FF"
-            textColor="#1C1C1C"
+            buttonColor={COLORS.color00B0FF}
+            textColor={COLORS.color1C1C1C}
             style={styles.button}
             onPress={() => router.push({ pathname: '/pujar/[id]', params: { id: subasta.id } })}
           >
@@ -211,8 +213,8 @@ export default function SubastaDetalleScreen() {
           <Button
             icon="chat"
             mode="contained"
-            buttonColor="#00B0FF"
-            textColor="#1C1C1C"
+            buttonColor={COLORS.color00B0FF}
+            textColor={COLORS.color1C1C1C}
             style={styles.button}
             onPress={startConversation}
           >
@@ -240,13 +242,13 @@ export default function SubastaDetalleScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0F1C',
+    backgroundColor: COLORS.color0A0F1C,
     padding: 16,
   },
   loading: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: '#0A0F1C',
+    backgroundColor: COLORS.color0A0F1C,
     alignItems: 'center',
   },
   image: {
@@ -257,7 +259,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   card: {
-    backgroundColor: '#BFCED6',
+    backgroundColor: COLORS.colorBFCED6,
     borderRadius: 12,
     padding: 16,
     marginBottom: 25
@@ -265,30 +267,30 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#1C1C1C',
+    color: COLORS.color1C1C1C,
     marginBottom: 10,
   },
   label: {
-    color: '#444',
+    color: COLORS.color444,
     fontWeight: '600',
     marginTop: 8,
   },
   value: {
-    color: '#1C1C1C',
+    color: COLORS.color1C1C1C,
   },
   finalizada: {
-    color: '#D32F2F',
+    color: COLORS.colorD32F2F,
     fontWeight: 'bold',
   },
   ganador: {
-    color: '#388E3C',
+    color: COLORS.color388E3C,
     fontWeight: 'bold',
     fontSize: 16,
     marginTop: 10,
   },
   divider: {
     height: 1,
-    backgroundColor: '#999',
+    backgroundColor: COLORS.color999,
     marginVertical: 16,
   },
   button: {

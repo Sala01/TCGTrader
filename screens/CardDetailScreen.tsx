@@ -2,6 +2,8 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { View, ScrollView, Image } from 'react-native'
 import { Text, Card, Divider, Title, Subheading } from 'react-native-paper'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 type CardDetailParams = {
   params: {
@@ -26,7 +28,7 @@ export default function CardDetailScreen() {
   const card = params.card
 
   return (
-    <ScrollView style={{ padding: 16, backgroundColor: '#0A0F1C' }}>
+    <ScrollView style={{ padding: 16, backgroundColor: COLORS.color0A0F1C }}>
       <Card>
         <Card.Cover source={{ uri: card.image_url }} />
         <Card.Title title={card.name} subtitle={`${card.set} • ${card.rarity}`} />

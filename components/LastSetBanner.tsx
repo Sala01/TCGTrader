@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase'
 import { router } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useFocusEffect } from '@react-navigation/native'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 const { width } = Dimensions.get('window')
 
@@ -64,7 +66,7 @@ export default function LastSetBanner() {
             mode="contained"
             style={styles.button}
             labelStyle={styles.buttonLabel}
-            buttonColor="#00C8FF"
+            buttonColor={COLORS.color00C8FF}
           >
             Ver cartas
           </Button>
@@ -83,7 +85,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     height: 160,
     elevation: 4,
-    backgroundColor: '#1C1C2E',
+    backgroundColor: COLORS.color1C1C2E,
   },
   image: {
     resizeMode: 'cover',
@@ -94,16 +96,16 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   label: {
-    color: '#00C8FF',
+    color: COLORS.color00C8FF,
     fontSize: 12,
     fontWeight: '600',
     marginBottom: 4,
   },
   title: {
-    color: '#FFFFFF',
+    color: COLORS.colorFFFFFF,
     fontSize: 20,
     fontWeight: 'bold',
-    textShadowColor: '#00000088',
+    textShadowColor: COLORS.color00000088,
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
   },
@@ -114,6 +116,6 @@ const styles = StyleSheet.create({
   },
   buttonLabel: {
     fontWeight: 'bold',
-    color: '#0A0F1C',
+    color: COLORS.color0A0F1C,
   },
 })

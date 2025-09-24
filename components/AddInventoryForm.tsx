@@ -8,6 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import * as FileSystem from 'expo-file-system'
 import { decode as atob } from 'base-64'
 import { useSnackbar } from '@/providers/SnackbarProvider'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 const estados = ['NM', 'LP', 'MP', 'HP', 'D']
 
@@ -133,8 +135,8 @@ export default function AddInventoryForm() {
                                     setSearch(item.name)
                                 }}
                             >
-                                <Card style={{ marginVertical: 4, padding: 8, backgroundColor: '#1C1C2E' }}>
-                                    <Text style={{ color: 'white' }}>{item.name}</Text>
+                                <Card style={{ marginVertical: 4, padding: 8, backgroundColor: COLORS.color1C1C2E }}>
+                                    <Text style={{ color: COLORS.white }}>{item.name}</Text>
                                 </Card>
                             </TouchableOpacity>
                         )}
@@ -142,12 +144,12 @@ export default function AddInventoryForm() {
                 )}
 
                 {selectedCard && (
-                    <View style={{ flexDirection: 'row', marginVertical: 12, backgroundColor: '#1C1C2E', borderRadius: 8, padding: 12 }}>
+                    <View style={{ flexDirection: 'row', marginVertical: 12, backgroundColor: COLORS.color1C1C2E, borderRadius: 8, padding: 12 }}>
                         <Image source={{ uri: selectedCard.image_url }} style={{ width: 100, height: 140, borderRadius: 8, marginRight: 12 }} />
                         <View style={{ flex: 1 }}>
-                            <Text style={{ color: 'white', fontWeight: 'bold' }}>{selectedCard.name}</Text>
-                            <Text style={{ color: '#aaa' }}>{selectedCard.number}</Text>
-                            <Text style={{ color: '#00B0FF' }}>{selectedCard.rarity}</Text>
+                            <Text style={{ color: COLORS.white, fontWeight: 'bold' }}>{selectedCard.name}</Text>
+                            <Text style={{ color: COLORS.colorAAA }}>{selectedCard.number}</Text>
+                            <Text style={{ color: COLORS.color00B0FF }}>{selectedCard.rarity}</Text>
                         </View>
                     </View>
                 )}
@@ -195,7 +197,7 @@ export default function AddInventoryForm() {
                     onPress={handleSave}
                     loading={uploading}
                     disabled={uploading}
-                    buttonColor="#00B0FF"
+                    buttonColor={COLORS.color00B0FF}
                 >
                     Agregar al inventario
                 </Button>

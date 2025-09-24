@@ -18,6 +18,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router'
 import { useSnackbar } from '@/providers/SnackbarProvider'
 import * as Linking from 'expo-linking'
+import { COLORS } from '../constants/GlobalStyles';
+
 
 export default function AuthScreen() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
@@ -62,7 +64,7 @@ export default function AuthScreen() {
 
     if (error) return showSnackbar(error.message)
 
-    showSnackbar('Confirma tu correo electrónico antes de iniciar sesión', '#00B0FF')
+    showSnackbar('Confirma tu correo electrónico antes de iniciar sesión', COLORS.color00B0FF)
   }
 
   const handleLogin = async () => {
@@ -128,7 +130,7 @@ export default function AuthScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: '#0A0F1C' }}
+      style={{ flex: 1, backgroundColor: COLORS.color0A0F1C }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 48 }}>
@@ -149,16 +151,16 @@ export default function AuthScreen() {
             {
               value: 'login',
               label: 'Iniciar sesión',
-              labelStyle: { color: mode === 'login' ? '#000' : '#FFF' },
+              labelStyle: { color: mode === 'login' ? COLORS.color000 : COLORS.colorFFF },
             },
             {
               value: 'register',
               label: 'Registrarse',
-              labelStyle: { color: mode === 'register' ? '#000' : '#FFF' },
+              labelStyle: { color: mode === 'register' ? COLORS.color000 : COLORS.colorFFF },
             },
           ]}
           style={{ marginBottom: 16 }}
-          theme={{ colors: { secondaryContainer: '#00B0FF' } }}
+          theme={{ colors: { secondaryContainer: COLORS.color00B0FF } }}
         />
 
         <TextInput
@@ -184,7 +186,7 @@ export default function AuthScreen() {
           mode="contained"
           onPress={handleSubmit}
           loading={loading}
-          buttonColor="#00B0FF"
+          buttonColor={COLORS.color00B0FF}
           style={{ marginBottom: 12 }}
         >
           {mode === 'register' ? 'Registrarse' : 'Iniciar sesión'}
@@ -192,7 +194,7 @@ export default function AuthScreen() {
 
         {showCompleteProfile && (
           <>
-            <Text style={{ color: 'white', marginBottom: 12, textAlign: 'center' }}>
+            <Text style={{ color: COLORS.white, marginBottom: 12, textAlign: 'center' }}>
               Completa tu perfil para continuar
             </Text>
 
@@ -217,24 +219,24 @@ export default function AuthScreen() {
               mode="contained"
               onPress={handleCompleteProfile}
               loading={loading}
-              buttonColor="#00B0FF"
+              buttonColor={COLORS.color00B0FF}
             >
               Guardar perfil
             </Button>
           </>
         )}
 
-        <Text style={{ color: '#aaa', fontSize: 12, marginTop: 12 }}>
+        <Text style={{ color: COLORS.colorAAA, fontSize: 12, marginTop: 12 }}>
           Al registrarse, usted acepta que leyó el{' '}
           <Text
-            style={{ color: '#00B0FF', textDecorationLine: 'underline' }}
+            style={{ color: COLORS.color00B0FF, textDecorationLine: 'underline' }}
             onPress={() => Linking.openURL('https://onlycarry.com/tcgtraders/privacidad.html')}
           >
             aviso de privacidad
           </Text>{' '}
           y acepta los{' '}
           <Text
-            style={{ color: '#00B0FF', textDecorationLine: 'underline' }}
+            style={{ color: COLORS.color00B0FF, textDecorationLine: 'underline' }}
             onPress={() => Linking.openURL('https://onlycarry.com/tcgtraders/terminos.html')}
           >
             términos y condiciones

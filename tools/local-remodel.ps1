@@ -22,7 +22,7 @@ $ollamaExe = "C:\Users\exsal\AppData\Local\Programs\Ollama\ollama.exe"
 if (-not (Test-Path $ollamaExe)) { Write-Error "No se encontró Ollama en: $ollamaExe"; exit 1 }
 $ollama = Get-Process -Name "ollama" -ErrorAction SilentlyContinue
 if (-not $ollama) {
-  Start-Process -FilePath $ollamaExe -ArgumentList "serve" -NoNewWindow
+  Start-Process -FilePath $ollamaExe -ArgumentList "serve" -WindowStyle Hidden
   Start-Sleep -Seconds 3
 }
 # Verifica y descarga el modelo si falta (idempotente)
@@ -35,9 +35,9 @@ if (-not $aiderExe -or -not (Test-Path $aiderExe)) {
   Write-Error "No se encontró Aider (AIDER_EXE). Revisa el paso de instalación en el workflow."; exit 1
 }
 
-# 5) Define alcance del repo (limita carpetas grandes)
-$includePaths = @("app","src","packages","apps","lib") | Where-Object { Test-Path $_ }
-if ($includePaths.Count -eq 0) { $includePaths = @(".") }
+# 5) Modo no interactivo para runners (evita errores de TUI/Unicode)
+$env:PYTHONIOENCODING = "utf-8"
+$env:TERM = "xterm"
 
 # 6) Guía para la remodelación
 $guide = @"
@@ -51,12 +51,15 @@ Reglas:
 "@
 
 # 7) Ejecuta Aider con el modelo local de Ollama
+#   - Usa el REPO raíz "." (un solo directorio) para evitar el error "directory not provided alone"
+#   - Flags no-interactivos: --yes, --auto-commits, --no-pretty, --git
 $aiderArgs = @(
   "--model","ollama:qwen2.5-coder:7b",
-  "--weak-model","ollama:qwen2.5-coder:7b",
   "--yes","--auto-commits",
-  "--message",$guide
-) + $includePaths
+  "--no-pretty","--git",
+  "--message",$guide,
+  "."
+)
 
 Write-Host "Lanzando Aider con tarea: $Task"
 & $aiderExe @aiderArgs
